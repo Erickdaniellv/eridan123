@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Eridan123{% endblock %}
+
+{% block contenido %}
+
+
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-gray-900">
+                ¡Bienvenido a mis servicios de scraping web!
+            </h1>
+        </div>
+    </header>
+
+    <section class="text-center py-20 bg-yellow-400 text-white">
+        <h1 class="text-4xl font-bold">Servicios de Scraping Web</h1>
+        <p class="mt-4 text-lg max-w-xl mx-auto">Obtén datos valiosos de la web de manera automatizada.</p>
+    </section>
+
+    <section class="py-12 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900">Nuestros Servicios</h2>
+                <p class="mt-4 text-xl">Ofrecemos una variedad de soluciones de scraping web para satisfacer tus necesidades.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="p-6 transition-shadow border rounded-lg shadow-sm hover:shadow-lg">
+                    <h3 class="text-xl font-bold mb-2">Extracción de Datos</h3>
+                    <p>Extraemos datos estructurados de sitios web de acuerdo a tus especificaciones y requerimientos.</p>
+                </div>
+                <div class="p-6 transition-shadow border rounded-lg shadow-sm hover:shadow-lg">
+                    <h3 class="text-xl font-bold mb-2">Automatización de Tareas</h3>
+                    <p>Automatizamos procesos repetitivos de recopilación de información para ahorrar tiempo y recursos.</p>
+                </div>
+                <div class="p-6 transition-shadow border rounded-lg shadow-sm hover:shadow-lg">
+                    <h3 class="text-xl font-bold mb-2">Análisis de Datos</h3>
+                    <p>Analizamos los datos recopilados para proporcionarte insights y ayudarte a tomar decisiones informadas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 bg-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900">Contacto</h2>
+                <p class="mt-4 text-xl">¿Interesado en nuestros servicios de scraping web? Contáctanos hoy mismo.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <form>
+                    <div class="grid grid-cols-1 gap-6">
+                        <label class="block">
+                            <span class="text-gray-700">Tu nombre</span>
+                            <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-500 focus:ring-opacity-50" placeholder="">
+                        </label>
+                        <label class="block">
+                            <span class="text-gray-700">Tu correo electrónico</span>
+                            <input type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-500 focus:ring-opacity-50" placeholder="">
+                        </label>
+                        <label class="block">
+                            <span class="text-gray-700">Tu mensaje</span>
+                            <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-500 focus:ring-opacity-50" rows="3"></textarea>
+                        </label>
+                        <button type="submit" class="px-6 py-3 bg-yellow-400 text-white font-bold rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-50">
+                            Enviar Mensaje
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</body>
+{% endblock %}
