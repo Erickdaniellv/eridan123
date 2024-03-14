@@ -39,20 +39,17 @@ def create_app():
 
     #@app.after_request
     #def apply_csp(response):
-    #    csp = (
-     #       "default-src 'self'; "
-      #      "script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://js.stripe.com https://checkout.stripe.com https://maxcdn.bootstrapcdn.com; "
-       #     "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
-        #    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-         #   "img-src 'self' data: https://*.stripe.com https://refaobregon.s3.amazonaws.com; "
-          #  "frame-src 'self' https://www.googletagmanager.com https://www.stripe.com https://checkout.stripe.com https://js.stripe.com; "
-           # "connect-src 'self' https://www.google-analytics.com https://analytics.google.com; "
+     #   csp = (
+      #      "default-src 'self'; "
+       #     "script-src 'self' 'unsafe-inline' https://code.jquery.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://js.stripe.com https://checkout.stripe.com https://maxcdn.bootstrapcdn.com; "
+        #    "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+         #   "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+          #  "img-src 'self' data: https://*.stripe.com https://refaobregon.s3.amazonaws.com; "
+           # "frame-src 'self' https://www.googletagmanager.com https://www.stripe.com https://checkout.stripe.com https://js.stripe.com; "
+            #"connect-src 'self' https://www.google-analytics.com https://analytics.google.com; "
         #)
         #response.headers['Content-Security-Policy'] = csp
         #return response
-
-
-
 
 
     # Configuración del cargador de usuario para Flask-Login

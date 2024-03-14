@@ -2,130 +2,170 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eridan123</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+    <meta name="google-site-verification" content="DaKCVIiBBvEbY1K5l_eAwYqvsdpCOsT232jQD96YgU8"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eridan123</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Z362DMJ2DW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-Z362DMJ2DW');
+</script>
 
 
 <body class="bg-gray-50 text-gray-800">
-  <div class="bg-white lg:pb-12">
-    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+    <div class="bg-white lg:pb-12">
+        <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+            <header class="flex items-center justify-between py-4 md:py-8 relative">
+                <!-- logo - start -->
+                <a href="/" class="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl"
+                    aria-label="logo">
+                    <svg width="95" height="94" viewBox="0 0 95 94" class="h-auto w-6 text-indigo-500"
+                        fill="currentColor" <path d="M96 0V47L48 94H0V47L48 0H96Z" />
+                    </svg>
+                    Eridan123
+                </a>
+                <!-- logo - end -->
+                <!-- nav - start -->
+                <nav class="hidden gap-12 lg:flex">
+                    <a href="/"
+                        class="text-lg font-semibold text-gray-600 transition duration-100 hover:text-indigo-500 active:text-indigo-700">Inicio</a>
+
+                    <!-- Contenedor del Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <!-- Botón para togglear el Dropdown -->
+                        <button @click="open = !open"
+                            class="inline-flex items-center gap-1 text-lg font-semibold text-indigo-500">
+                            Servicios
+                            <!-- Icono de Flecha (puedes reemplazarlo con un ícono de tu preferencia) -->
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Opciones del Dropdown -->
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                <a href="{{ url_for('automatic') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-500"
+                                    role="menuitem">Auto</a>
+                                <a href="{{ url_for('ecommerce') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-500"
+                                    role="menuitem">Ecommerce</a>
+                                <a href="{{ url_for('scraping') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-500"
+                                    role="menuitem">Scraping</a>
+                                <a href="{{ url_for('web') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-500"
+                                    role="menuitem">Web</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('contact') }}"
+                        class="text-lg font-semibold text-gray-600 transition duration-100 hover:text-indigo-500 active:text-indigo-700">Conctacto</a>
+                </nav>
+                <!-- nav - end -->
+
+                <!-- buttons - start -->
+                <div class="-ml-8 hidden flex-col gap-2.5 sm:flex-row sm:justify-center lg:flex lg:justify-start">
+                    <a href="{{ url_for('register') }}"
+                        class="inline-block rounded-lg px-4 py-3 text-center text-sm font-semibold text-gray-500 outline-none ring-indigo-300 transition duration-100 hover:text-indigo-500 focus-visible:ring active:text-indigo-600 md:text-base">Registro</a>
+
+                    <a href="{{ url_for('login') }}"
+                        class="inline-block rounded-lg bg-indigo-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">Acceso</a>
+                </div>
 
 
-      <header class="flex items-center justify-between py-4 md:py-8 relative">
+                <div x-data="{ open: false }">
+                    <button @click="open = !open" type="button"
+                        class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2.5 py-2 text-sm font-semibold text-gray-500 ring-indigo-300 hover:bg-gray-300 focus-visible:ring active:text-gray-700 md:text-base lg:hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+
+                    </button>
+
+                    <div x-cloak x-show="open" @click.away="open = false"
+                        class="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md py-2 left-0 origin-top-right">
+                        <a href="{{ url_for('login') }}" class="block px-4 py-2 hover:bg-gray-100">Acceso</a>
+                        <a href="{{ url_for('register') }}" class="block px-4 py-2 hover:bg-gray-100">Registro</a>
+                        <a href="{{ url_for('contact') }}" class="block px-4 py-2 hover:bg-gray-100">Contacto</a>
+
+                        <a href="{{ url_for('automatic') }}" class="block px-4 py-2 hover:bg-gray-100">Auto</a>
+                        <a href="{{ url_for('ecommerce') }}" class="block px-4 py-2 hover:bg-gray-100">Ecommerce</a>
+                        <a href="{{ url_for('scraping') }}" class="block px-4 py-2 hover:bg-gray-100">scraping</a>
+                        <a href="{{ url_for('web') }}" class="block px-4 py-2 hover:bg-gray-100">web</a>
 
 
-        <!-- logo - start -->
-        <a href="/" class="inline-flex items-center gap-2.5 text-2xl font-bold text-black md:text-3xl"
-          aria-label="logo">
-          <svg width="95" height="94" viewBox="0 0 95 94" class="h-auto w-6 text-indigo-500" fill="currentColor"
-            <path d="M96 0V47L48 94H0V47L48 0H96Z" />
-          </svg>
-          Eridan123
-        </a>
-        <!-- logo - end -->
 
-        <!-- nav - start -->
-        <nav class="hidden gap-12 lg:flex">
-          <a href="/"
-            class="text-lg font-semibold text-gray-600 transition duration-100 hover:text-indigo-500 active:text-indigo-700">Inicio</a>
-          <a href="/" class="inline-flex items-center gap-1 text-lg font-semibold text-indigo-500"> Servicios
 
-          <a href="#"
-            class="text-lg font-semibold text-gray-600 transition duration-100 hover:text-indigo-500 active:text-indigo-700">Conctacto</a>
-        </nav>
-        <!-- nav - end -->
+                    </div>
 
-        <!-- buttons - start -->
-        <div class="-ml-8 hidden flex-col gap-2.5 sm:flex-row sm:justify-center lg:flex lg:justify-start">
-          <a href="{{ url_for('register') }}"
-            class="inline-block rounded-lg px-4 py-3 text-center text-sm font-semibold text-gray-500 outline-none ring-indigo-300 transition duration-100 hover:text-indigo-500 focus-visible:ring active:text-indigo-600 md:text-base">Registro</a>
-
-          <a href="{{ url_for('login') }}"
-            class="inline-block rounded-lg bg-indigo-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">Acceso</a>
+                </div>
+                <!-- buttons - end -->
+            </header>
         </div>
-
-
-        <div x-data="{ open: false }">
-          <button @click="open = !open" type="button"
-            class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-2.5 py-2 text-sm font-semibold text-gray-500 ring-indigo-300 hover:bg-gray-300 focus-visible:ring active:text-gray-700 md:text-base lg:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd" />
-            </svg>
-
-          </button>
-
-          <div x-cloak x-show="open" @click.away="open = false" class="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-md py-2 left-0 origin-top-right">
-            <a href="{{ url_for('login') }}" class="block px-4 py-2 hover:bg-gray-100">Acceso</a>
-            <a href="{{ url_for('register') }}" class="block px-4 py-2 hover:bg-gray-100">Registro</a>
-            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Contacto</a>
-        </div>
-        
-        </div>
-        <!-- buttons - end -->
-      </header>
     </div>
-  </div>
 
-  <style>
-    [x-cloak] {
-      display: none;
-    }
-  </style>
-  <script src="//unpkg.com/alpinejs" defer></script>
-
-
-  <script>
-    function openNav() {
-      document.getElementById("myNav").classList.toggle("menu_width")
-      document.querySelector(".custom_menu-btn").classList.toggle("menu_btn-style")
-    }
-  </script>
+    <style>
+        [x-cloak] {
+            display: none;
+        }
+    </style>
+    <script src="//unpkg.com/alpinejs" defer></script>
 
 
+    <script>
+        function openNav() {
+            document.getElementById("myNav").classList.toggle("menu_width")
+            document.querySelector(".custom_menu-btn").classList.toggle("menu_btn-style")
+        }
+    </script>
 
-  {% block contenido %} {% endblock %}
 
+
+    {% block contenido %} {% endblock %}
 
 
 
 
 
 
+    <footer class="bg-white pt-4 sm:pt-6 lg:pt-8">
 
+        <div class="pt-12">
+            <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+                <div class="mb-16 grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-6 lg:gap-8">
+                    <div class="col-span-full lg:col-span-2">
+                        <!-- logo - start -->
+                        <div class="mb-4 lg:-mt-2">
+                            <a href="/" class="inline-flex items-center gap-2 text-xl font-bold text-black md:text-2xl"
+                                aria-label="logo">
+                                <svg width="95" height="94" viewBox="0 0 95 94" class="h-auto w-5 text-indigo-500"
+                                    fill="currentColor" <path d="M96 0V47L48 94H0V47L48 0H96Z" />
+                                </svg>
 
+                                Eridan123
+                            </a>
+                        </div>
+                        <!-- logo - end -->
 
+                        <p class="mb-6 text-gray-500 sm:pr-8">"Orgullosos de de formar parte del desarrollo"</p>
 
-
-
-  <footer class="bg-white pt-4 sm:pt-6 lg:pt-8">
-
-    <div class="pt-12">
-      <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
-        <div class="mb-16 grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-6 lg:gap-8">
-          <div class="col-span-full lg:col-span-2">
-            <!-- logo - start -->
-            <div class="mb-4 lg:-mt-2">
-              <a href="/" class="inline-flex items-center gap-2 text-xl font-bold text-black md:text-2xl"
-                aria-label="logo">
-                <svg width="95" height="94" viewBox="0 0 95 94" class="h-auto w-5 text-indigo-500" fill="currentColor"
-                  <path d="M96 0V47L48 94H0V47L48 0H96Z" />
-                </svg>
-
-                Eridan123
-              </a>
-            </div>
-            <!-- logo - end -->
-
-            <p class="mb-6 text-gray-500 sm:pr-8">"Orgullosos de de formar parte del desarrollo"</p>
-
-            <!-- social - start -->
-           <!--  <div class="flex gap-4">
+                        <!-- social - start -->
+                        <!--  <div class="flex gap-4">
               <a href="#" target="_blank"
                 class="text-gray-400 transition duration-100 hover:text-gray-500 active:text-gray-600">
                 <svg class="h-5 w-5" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
@@ -162,132 +202,111 @@
                 </svg>
               </a>
             </div> -->
-            <!-- social - end -->
-          </div>
+                        <!-- social - end -->
+                    </div>
 
-          <!-- nav - start -->
-          <div>
-            <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Productos</div>
+                    <!-- nav - start -->
+                    <div>
+                        <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Productos</div>
 
-            <nav class="flex flex-col gap-4">
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Overview</a>
-              </div>
+                        <nav class="flex flex-col gap-4">
+                            <div>
+                                <a href="{{ url_for('automatic') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Auto</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Solutions</a>
-              </div>
+                            <div>
+                                <a href="{{ url_for('ecommerce') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Ecommerce</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Pricing</a>
-              </div>
+                            <div>
+                                <a href="{{ url_for('scraping') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">scraping</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Customers</a>
-              </div>
-            </nav>
-          </div>
-          <!-- nav - end -->
+                            <div>
+                                <a href="{{ url_for('web') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">web</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <!-- nav - end -->
 
-          <!-- nav - start -->
-          <div>
-            <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Compañia</div>
+                    <!-- nav - start -->
+                    <div>
+                        <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Compañia</div>
 
-            <nav class="flex flex-col gap-4">
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">About</a>
-              </div>
+                        <nav class="flex flex-col gap-4">
+                            <div>
+                                <a href="{{ url_for('about') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Nosotros</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Investor
-                  Relations</a>
-              </div>
+                            <div>
+                                <a href="{{ url_for('Investor') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Invierte</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Jobs</a>
-              </div>
+                            <div>
+                                <a href="{{ url_for('job') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Trabajo</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Press</a>
-              </div>
+                        </nav>
+                    </div>
+                    <!-- nav - end -->
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Blog</a>
-              </div>
-            </nav>
-          </div>
-          <!-- nav - end -->
+                    <!-- nav - start -->
+                    <div>
+                        <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Soporte</div>
 
-          <!-- nav - start -->
-          <div>
-            <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Soporte</div>
+                        <nav class="flex flex-col gap-4">
+                            <div>
+                                <a href="{{ url_for('contact') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Contacto</a>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('faq') }}"" class=" text-gray-500 transition duration-100
+                                    hover:text-indigo-500 active:text-indigo-600">Preguntas</a>
+                            </div>
+                        </nav>
+                    </div>
+                    <!-- nav - end -->
 
-            <nav class="flex flex-col gap-4">
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Contact</a>
-              </div>
+                    <!-- nav - start -->
+                    <div>
+                        <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Legal</div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Documentation</a>
-              </div>
+                        <nav class="flex flex-col gap-4">
+                            <div>
+                                <a href="{{ url_for('termino') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Termino
+                                    y Condiciones</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Chat</a>
-              </div>
+                            <div>
+                                <a href="{{ url_for('privacy') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Politica
+                                    de Privacidad</a>
+                            </div>
 
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">FAQ</a>
-              </div>
-            </nav>
-          </div>
-          <!-- nav - end -->
+                            <div>
+                                <a href="{{ url_for('aviso_cookies') }}"
+                                    class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Cookie
+                                </a>
+                            </div>
+                        </nav>
+                    </div>
+                    <!-- nav - end -->
+                </div>
 
-          <!-- nav - start -->
-          <div>
-            <div class="mb-4 font-bold uppercase tracking-widest text-gray-800">Legal</div>
-
-            <nav class="flex flex-col gap-4">
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Terms of
-                  Service</a>
-              </div>
-
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Privacy
-                  Policy</a>
-              </div>
-
-              <div>
-                <a href="#"
-                  class="text-gray-500 transition duration-100 hover:text-indigo-500 active:text-indigo-600">Cookie
-                  settings</a>
-              </div>
-            </nav>
-          </div>
-          <!-- nav - end -->
+                <div class="border-t py-8 text-center text-sm text-gray-400">Eridan123 © 2022. Todos los derechos
+                    reservados.
+                </div>
+            </div>
         </div>
-
-        <div class="border-t py-8 text-center text-sm text-gray-400">Eridan123 © 2022. Todos los derechos reservados.
-        </div>
-      </div>
-    </div>
-  </footer>
-
+    </footer>
 
 
 

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Aviso de Cookies - Eridan123{% endblock %}
+
+{% block contenido %}
+<div class="bg-gray-100 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h1 class="text-lg leading-6 font-medium text-gray-900">Aviso de Cookies</h1>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Información importante sobre el uso de cookies en nuestro sitio web.</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">¿Qué son las cookies?</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Una cookie es un fichero que se descarga en su ordenador al acceder a determinadas páginas web. Permiten a una página web almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo y pueden utilizarse para reconocer al usuario.</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">¿Qué tipos de cookies utiliza esta página web?</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Cookies de análisis: Permiten cuantificar el número de usuarios para realizar la medición y análisis estadístico del uso del servicio ofrecido.</li>
+                                <li>Cookies técnicas: Permiten al usuario la navegación a través del área restringida y la utilización de sus diferentes funciones.</li>
+                                <li>Cookies de personalización: Permiten al usuario acceder al servicio con algunas características de carácter general predefinidas.</li>
+                                <li>Cookies publicitarias: Permiten gestionar de la forma más eficaz posible la oferta de los espacios publicitarios en la página web.</li>
+                                <li>Cookies de publicidad comportamental: Almacenan información del comportamiento de los visitantes para mostrar publicidad en función de este.</li>
+                            </ul>
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Desactivar las cookies</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            Puede permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador instalado en su ordenador.
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Más información</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            Para obtener más información sobre cómo configurar las cookies en los navegadores más frecuentes, consulte la documentación de su navegador o las guías de configuración de cookies disponibles en línea.
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

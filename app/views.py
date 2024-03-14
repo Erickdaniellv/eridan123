@@ -30,7 +30,95 @@ def init_routes(app):
 
 
 
+# Pagos:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
 
+    @app.route('/create-checkout-session-160', methods=['POST'])
+    @csrf.exempt
+    def create_checkout_session160():
+        # Crear una sesión de checkout en Stripe
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': 'price_1Os3rAEtUmFFwNqbrqx6IJHy',  # Asegúrate de reemplazar esto con el ID de precio real de Stripe
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('web', _external=True),
+        )
+        return jsonify({'url': session.url})
+
+
+    @app.route('/create-checkout-session-2399', methods=['POST'])
+    @csrf.exempt
+    def create_checkout_session2399():
+        # Crear una sesión de checkout en Stripe
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': 'price_1Os46cEtUmFFwNqbFmal7IHr',  # Asegúrate de reemplazar esto con el ID de precio real de Stripe
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('web', _external=True),
+        )
+        return jsonify({'url': session.url})
+
+    @app.route('/create-checkout-session-8980', methods=['POST'])
+    @csrf.exempt
+    def create_checkout_session8980():
+        # Crear una sesión de checkout en Stripe
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': 'price_1Os46qEtUmFFwNqbW9dsVsp5',  # Asegúrate de reemplazar esto con el ID de precio real de Stripe
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('web', _external=True),
+        )
+        return jsonify({'url': session.url})
+
+    @app.route('/success')
+    def success():
+        session_id = request.args.get('session_id')
+        # Aquí puedes implementar la lógica que desees después de una suscripción exitosa,
+        # como guardar la información en tu base de datos.
+        return render_template('stripe/success.html')  # Muestra una página de éxito.
+
+    @app.route('/cancel')
+    def cancel():
+        # Lógica en caso de que el usuario cancele la suscripción.
+        return render_template('stripe/cancel.html')  # Muestra una página de cancelación.
+
+    @app.route('/stripe-webhook', methods=['POST'])
+    @csrf.exempt
+    def stripe_webhook():
+        payload = request.get_data(as_text=True)
+        sig_header = request.headers.get('Stripe-Signature')
+        webhook_secret = os.environ.get('WEBHOOK_SECRET')
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, webhook_secret
+            )
+
+        except ValueError as e:
+            # Si el payload es inválido, retorna un error 400
+            return 'Invalid payload', 400
+        except stripe.error.SignatureVerificationError as e:
+            # Si la firma de la solicitud no es válida, retorna un error 400
+            return 'Invalid signature', 400
+
+        # Maneja el evento
+        if event['type'] == 'payment_intent.succeeded':
+            payment_intent = event['data']['object']  # Contiene la información del PaymentIntent
+            # Haz algo con el payment_intent
+
+        # Retorna una respuesta 200 para indicar a Stripe que el evento fue recibido correctamente
+        return jsonify({'status': 'success'}), 200
 
 
 
@@ -44,7 +132,7 @@ def init_routes(app):
 
     @app.route('/sitemap_index.xml')
     def sitemap_index():
-        base_url = "https://www.refacajeme.com"
+        base_url = "https://www.eridan123.com"
         sitemap_index = ET.Element('sitemapindex', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
 
         # Supongamos que divides tus productos en 6 sitemaps
@@ -64,10 +152,7 @@ def init_routes(app):
     def index():
         return render_template('index.html')
 
-    @app.route('/team')
-    def team():
-        return render_template('team.html')
-    
+
 
     @app.route('/scraping')
     def scraping():
@@ -86,34 +171,16 @@ def init_routes(app):
         return render_template('servicios/automatic.html')
         
 
-    @app.route('/portfolio')
-    def portfolio():
-        return render_template('portfolio.html')
+ 
 
 
+    @app.route('/team')
+    def team():
+        return render_template('team.html')
+    
     @app.route('/about')
     def about():
-        return render_template('about.html')
-
-    @app.route('/glasses')
-    def glasses():
-        return render_template('glasses.html')
-
-    @app.route('/shop')
-    def shop():
-        return render_template('shop.html')
-
-
-
-
-    @app.route('/hero')
-    def hero():
-        return render_template('hero.html')
-    
-    @app.route('/beneficioscrm')
-    def beneficioscrm():
-        return render_template('crm/beneficioscrm.html')
-
+        return render_template('footer/about.html')
 
     @app.route('/privacy')
     def privacy():
@@ -130,6 +197,23 @@ def init_routes(app):
     @app.route('/contact')
     def contact():
         return render_template('footer/contact.html')
+
+
+    @app.route('/Investor')
+    def Investor():
+        return render_template('footer/investor.html')
+    
+    @app.route('/job')
+    def job():
+        return render_template('footer/job.html')
+
+    @app.route('/termino')
+    def termino():
+        return render_template('footer/termino.html')
+    
+
+
+
 
     @app.route('/send_contact_email', methods=['POST'])
     def send_contact_email():
@@ -148,72 +232,7 @@ def init_routes(app):
 
         return redirect(url_for('contact'))
 
-# Pagos:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
-    
-    
-    
-    
-    
 
-    @app.route('/create-checkout-session', methods=['POST'])
-    @csrf.exempt
-    def create_checkout_session():
-        # Crear una sesión de checkout en Stripe
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price': 'price_1OpYu9EtUmFFwNqbTnBxvvnE',  # Asegúrate de reemplazar esto con el ID de precio real de Stripe
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=url_for('cancel', _external=True),
-        )
-        return redirect(session.url, code=303)
-
-
-    @app.route('/success')
-    def success():
-        session_id = request.args.get('session_id')
-        # Aquí puedes implementar la lógica que desees después de una suscripción exitosa,
-        # como guardar la información en tu base de datos.
-        return render_template('stripe/success.html')  # Muestra una página de éxito.
-
-    @app.route('/cancel')
-    def cancel():
-        # Lógica en caso de que el usuario cancele la suscripción.
-        return render_template('stripe/cancel.html')  # Muestra una página de cancelación.
-
-    @app.route('/webhook', methods=['POST'])
-    def stripe_webhook():
-        payload = request.get_data(as_text=True)
-        sig_header = request.headers.get('Stripe-Signature')
-
-        # Asegúrate de reemplazar esto con tu propio endpoint secret
-        endpoint_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
-
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, endpoint_secret
-            )
-
-        except ValueError as e:
-            # Si el payload es inválido, retorna un error 400
-            return 'Invalid payload', 400
-        except stripe.error.SignatureVerificationError as e:
-            # Si la firma de la solicitud no es válida, retorna un error 400
-            return 'Invalid signature', 400
-
-        # Maneja el evento
-        if event['type'] == 'payment_intent.succeeded':
-            payment_intent = event['data']['object']  # Contiene la información del PaymentIntent
-            # Haz algo con el payment_intent
-
-        # Retorna una respuesta 200 para indicar a Stripe que el evento fue recibido correctamente
-        return jsonify({'status': 'success'}), 200
-
-
-    
 
 
 
