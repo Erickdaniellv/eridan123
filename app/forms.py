@@ -3,7 +3,33 @@ from wtforms import FloatField, StringField, DecimalField, PasswordField, Boolea
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp  # Importa Regexp correctamente
 
 
+class CostoAutoForm(FlaskForm):
+    costo_adquisicion = FloatField('Costo de Adquisición', validators=[DataRequired()])
+    costo_reparacion = FloatField('Costo de Reparación', default=0.0)
+    costo_traslado = FloatField('Costo de Traslado', validators=[DataRequired()])
+    costo_otros = FloatField('Otros Costos', validators=[DataRequired()])
+    # Agrega los campos para los nuevos costos que has definido
+    submit = SubmitField('Agregar Costo')
 
+
+class AutoForm(FlaskForm):
+    marca = StringField('Marca', validators=[DataRequired()])
+    modelo = StringField('Modelo', validators=[DataRequired()])
+    ano = IntegerField('Año', validators=[DataRequired()])
+    vin = StringField('VIN', validators=[DataRequired()])
+    numero_lote = StringField('Número de lote', validators=[DataRequired()])
+    nombre_subasta = StringField('Nombre de subasta', validators=[DataRequired()])
+    localidad = StringField('Localidad', validators=[DataRequired()])
+    img = StringField('URL de imágenes del auto', validators=[DataRequired()])
+    # Añade aquí más campos según necesites
+    submit = SubmitField('Registrar')
+
+
+class InversionForm(FlaskForm):
+    descripcion = StringField('Descripción', validators=[DataRequired()])
+    monto = IntegerField('Monto', validators=[DataRequired()])
+    # Considera añadir un campo para la fecha si no se genera automáticamente
+    submit = SubmitField('Registrar')
 
 class RegistrationForm(FlaskForm):
     email = StringField(

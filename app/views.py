@@ -1,34 +1,364 @@
-# C:\Users\Erick Lopez2\Desktop\eccomerce\app\views.py
-from .models import Producto, Usuario, Cartitem, Cartsession, Order, OrderItem, ShippingAddress
+from .models import Costoauto, Autos, Inversiones, SubastaVentura, Subastasusa, Traslados, Producto, Usuario, Cartitem, Cartsession, Order, OrderItem, ShippingAddress
+from .forms import CostoAutoForm, UserProfileForm, AutoForm, InversionForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
+
 from flask import Response, current_app, make_response, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 from . import db, limiter, mail, csrf, cache  
-from .forms import UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash  # Asegúrate de importar esto
 from flask_mail import Message
 import stripe
 from .email_functions import send_confirmation_email
 import os 
-from sqlalchemy.orm import joinedload
 import xml.etree.ElementTree as ET
 from urllib.parse import quote
 from math import ceil
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
 import logging
-import re
+import re, csv, sqlite3
+from io import StringIO
+import pandas as pd
+import boto3
 
 
 
 def init_routes(app):
     stripe.api_key = os.environ.get('STRIPE_API_KEY')
-    
+        
     def format_currency(value):
-        return "${:,.2f}".format(value)
+        try:
+            # Intenta convertir el valor a float
+            numeric_value = float(value)
+        except ValueError:
+            # Si la conversión falla, asume 0 como valor por defecto
+            numeric_value = 0
+        # Aplica el formato al valor numérico
+        return "${:,.2f}".format(numeric_value)
+
 
     # Registrar el filtro con Jinja2
     app.jinja_env.filters['currency'] = format_currency
 
 
+
+
+
+#ADMIN------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    @app.route('/admin/usuarios')
+    @login_required
+    def listar_usuarios():
+        if not current_user.es_administrador:
+            return "No tienes permiso para acceder a esta página", 403
+
+        filtro = request.args.get('filtro', '')     
+        if filtro:
+            usuarios = Usuario.query.filter(
+                db.or_(
+                    Usuario.nombre_usuario.contains(filtro),
+                    Usuario.email.contains(filtro),
+                    Usuario.rfc.contains(filtro)
+                )
+            ).all()
+        else:
+            usuarios = Usuario.query.all()
+        
+        # Calcular la suma de inversiones para cada usuario
+        suma_inversiones_por_usuario = {}
+        for usuario in usuarios:
+            suma_inversiones = db.session.query(db.func.sum(Inversiones.monto))\
+                                .filter(Inversiones.usuario_id == usuario.id).scalar() or 0
+            suma_inversiones_por_usuario[usuario.id] = suma_inversiones
+        
+        # Pasar tanto los usuarios como las sumas de inversiones al template
+        return render_template('admin/client.html', usuarios=usuarios, suma_inversiones_por_usuario=suma_inversiones_por_usuario, filtro=filtro)
+
+
+
+    @app.route('/cliente/<int:user_id>')
+    @login_required
+    def cliente_detalle(user_id):
+        # Verificar si el usuario actual es administrador
+        if not current_user.es_administrador:
+            flash("No tienes permiso para acceder a esta página.", "warning")
+            return redirect(url_for('index'))
+        usuario = Usuario.query.get_or_404(user_id)
+        # Aquí, agregar lógica para obtener autos asignados, inversiones y más información relacionada con el usuario.
+        autos = Autos.query.filter_by(usuario_id=usuario.id).all()
+        inversiones = Inversiones.query.filter_by(usuario_id=usuario.id).all()
+        # Agregar cualquier otra información relevante que el administrador necesite visualizar
+        
+        return render_template('admin/idclient.html', usuario=usuario, autos=autos, inversiones=inversiones)
+
+
+
+
+
+    @app.route('/registro-inversion/<int:user_id>', methods=['GET', 'POST'])
+    @login_required
+    def registro_inversion(user_id):
+        usuario = Usuario.query.get_or_404(user_id)
+        form = InversionForm()
+        if form.validate_on_submit():
+            inversion = Inversiones(
+                descripcion=form.descripcion.data, 
+                monto=form.monto.data,
+                usuario_id=user_id  # Asegúrate de asignar la inversión al usuario correcto
+            )
+            db.session.add(inversion)
+            db.session.commit()
+            flash('Inversión registrada con éxito!', 'success')
+            return redirect(url_for('listar_usuarios'))  # Asume que tienes una ruta 'index'
+        return render_template('admin/registro_inversion.html', form=form, usuario=usuario)
+
+    @app.route('/registro-auto/<int:user_id>', methods=['GET', 'POST'])
+    @login_required
+    def registro_auto(user_id):
+        # Asegúrate de que el usuario actual es administrador o el mismo usuario que se está modificando
+        if not current_user.es_administrador and current_user.id != user_id:
+            flash("No tienes permiso para realizar esta acción.", "warning")
+            return redirect(url_for('index'))
+
+        usuario = Usuario.query.get_or_404(user_id)
+        form = AutoForm()
+
+        if form.validate_on_submit():
+            auto = Autos(
+                marca=form.marca.data, 
+                modelo=form.modelo.data, 
+                ano=form.ano.data, 
+                vin=form.vin.data,
+                usuario_id=user_id  # Aquí usas el user_id pasado a la función
+            )
+            db.session.add(auto)
+            db.session.commit()
+            flash('Auto registrado con éxito para ' + usuario.nombre_usuario, 'success')
+            return redirect(url_for('listar_usuarios', user_id=user_id))
+
+        return render_template('admin/registro_auto.html', form=form, usuario=usuario)
+
+
+
+
+
+
+    @app.route('/agregar-costo/<int:auto_id>', methods=['GET', 'POST'])
+    @login_required
+    def agregar_costo(auto_id):
+        auto = Autos.query.get_or_404(auto_id)
+        form = CostoAutoForm()  # Inicializas el formulario aquí
+        if form.validate_on_submit():
+            # Recogiendo los datos del formulario
+            costo_adquisicion = request.form.get('costo_adquisicion', type=float)
+            costo_reparacion = request.form.get('costo_reparacion', type=float, default=0.0)
+            costo_traslado = request.form.get('costo_traslado', type=float, default=0.0)
+            costo_otros = request.form.get('costo_otros', type=float, default=0.0)
+            costo_importacion = request.form.get('costo_importacion', type=float, default=0.0)
+            costo_honorarios = request.form.get('costo_honorarios', type=float, default=0.0)
+            costo_flete_obr = request.form.get('costo_flete_obr', type=float, default=0.0)
+            costo_partes = request.form.get('costo_partes', type=float, default=0.0)
+            costo_carrocero = request.form.get('costo_carrocero', type=float, default=0.0)
+            costo_limpieza = request.form.get('costo_limpieza', type=float, default=0.0)
+            costo_gasolina = request.form.get('costo_gasolina', type=float, default=0.0)
+            costo_carlos = request.form.get('costo_carlos', type=float, default=0.0)
+            costo_millas = request.form.get('costo_millas', type=float, default=0.0)
+
+            # Creando el objeto Costoauto con todos los datos
+            nuevo_costo = Costoauto(auto_id=auto.id, costo_adquisicion=costo_adquisicion,
+                                    costo_reparacion=costo_reparacion, costo_traslado=costo_traslado,
+                                    costo_otros=costo_otros, costo_importacion=costo_importacion,
+                                    costo_honorarios=costo_honorarios, costo_flete_obr=costo_flete_obr,
+                                    costo_partes=costo_partes, costo_carrocero=costo_carrocero,
+                                    costo_limpieza=costo_limpieza, costo_gasolina=costo_gasolina,
+                                    costo_carlos=costo_carlos, costo_millas=costo_millas)
+
+            db.session.add(nuevo_costo)
+            db.session.commit()
+            flash('Costo agregado exitosamente', 'success')
+            # Asegúrate de que estás redireccionando a la URL correcta después de agregar el costo
+            return redirect(url_for('algun_endpoint', auto_id=auto.id))
+            
+        # Aquí es donde debes pasar el formulario a la plantilla
+        return render_template('admin/costos.html', form=form, auto=auto)
+
+
+
+#VINREPORTAUTO------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+
+
+
+
+
+
+    @app.route('/update_database', methods=['GET'])
+    def update_database_route():
+        status, message = update_database_from_s3()
+        return jsonify(message=message), status
+    def update_database_from_s3():
+        try:
+            s3_client = boto3.client('s3', region_name='us-east-1')
+            bucket_name = 's3-ventrua'
+            csv_file_key = 'svdata.csv'
+            
+            csv_obj = s3_client.get_object(Bucket=bucket_name, Key=csv_file_key)
+            csv_body = csv_obj['Body'].read().decode('utf-8')
+            csv_reader = csv.DictReader(StringIO(csv_body))
+
+            print("Comenzando la actualización de datos...")
+            with current_app.app_context():
+                # Desactivar autoflush
+                db.session.autoflush = False
+                
+                for row in csv_reader:
+                    existing_record = SubastaVentura.query.filter_by(vin=row['VIN']).first()
+                    if existing_record:
+                        # Aquí puedes decidir si actualizas el registro existente o simplemente continuas sin hacer nada
+                        print(f"El VIN {row['VIN']} ya existe, se omite la inserción.")
+                        continue  # Omite este registro y continúa con el siguiente
+
+
+                    # Convertir las URLs de imágenes y documentos en strings
+                    urlsimagenes_str = ','.join(row['URLs de Imágenes'].split(',')) 
+                    urlsdocumentos_str = ','.join(row['URLs de Documentos'].split(','))
+                    urlsimagenes3aws_str = ','.join(row['URLs de Imágenes3aws'].split(',')) 
+                    urlsdocumentos3aws_str = ','.join(row['URLs de Documentos3aws'].split(','))
+
+                    # Crear una nueva instancia de SubastaVentura
+                    new_record = SubastaVentura(
+                        vin=row['VIN'],
+                        marca=row['Marca'],
+                        modelo=row['Modelo'],
+                        ano=row['Año'], 
+                        precio_siniestro=row['Precio de Siniestro'],
+                        fecha_subasta=row['Fecha de Subasta'],
+                        condicion_venta=row['Condición de Venta'],
+                        niu=row['NIU'],
+                        vendedor=row['Vendedor'],
+                        torre=row['Número de Subasta'],
+                        ubicacion=row['Ubicación'],
+                        color=row['Color'],
+                        urlsimagenes=urlsimagenes_str,  
+                        urlsdocumentos=urlsdocumentos_str,
+                        urlsimagenes3aws=urlsimagenes3aws_str,  
+                        urlsdocumentos3aws=urlsdocumentos3aws_str
+                    )
+
+                    # Utilizar merge() para actualizar o insertar el registro
+                    db.session.merge(new_record)
+                
+                # Guardar todos los cambios en la base de datos
+                db.session.commit()
+
+            print("Actualización de datos completada.")
+            return "Base de datos actualizada correctamente", 200
+        
+        except IntegrityError as e:
+            db.session.rollback()
+            print(f"Error de integridad: {e}")
+            return f"Error de integridad al actualizar la base de datos: {e}", 500
+        except Exception as e:
+            db.session.rollback()
+            print(f"Ocurrió un error general: {e}")
+            return f"Error al actualizar la base de datos: {e}", 500
+
+
+
+    @app.route('/vehiculo/<vin>/')
+    def vehiculo_detalle(vin):
+        item = SubastaVentura.query.filter_by(vin=vin).first_or_404()
+        if item is not None:
+            return render_template('vehiculo_detalle.html', item=item)
+        else:
+            return "Vehículo no encontrado", 404
+        
+
+        
+
+    @app.route('/sitemap.xml')
+    def sitemap():
+        items = SubastaVentura.query.all()
+        
+        sitemap_xml = render_template('sitemap.xml', items=items)
+        response = make_response(sitemap_xml)
+        response.headers['Content-Type'] = 'application/xml'
+        
+        return response
+    
+    @app.route('/robots.txt')
+    def robots_txt():
+        return send_from_directory(current_app.static_folder, 'robots.txt')
+
+
+    @app.route('/property_car/<marca>/<modelo>/<int:ano>/<vin>/', methods=['GET'])
+    def property_car(marca, modelo, ano, vin):
+        item = SubastaVentura.query.filter_by(vin=vin, marca=marca, modelo=modelo, ano=ano).first()
+        if item:
+            return render_template('property_car.html', item=item)
+        else:
+            return "Vehículo no encontrado", 404
+
+
+    @app.route('/data', methods=['GET'])
+    def show_data():
+        page = request.args.get('page', 1, type=int)  # Obtiene la página actual
+        per_page = 10  # Define cuántos elementos quieres por página
+        # Obtiene listas únicas de años, marcas y modelos para los filtros del formulario
+        anos_unicos = db.session.query(SubastaVentura.ano).distinct().order_by(SubastaVentura.ano).all()
+        marcas_unicas = db.session.query(SubastaVentura.marca).distinct().order_by(SubastaVentura.marca).all()
+        modelos_unicos = db.session.query(SubastaVentura.modelo).distinct().order_by(SubastaVentura.modelo).all()
+
+        # Extrae solo los valores (sin tuplas) para pasar al template
+        anos_unicos = [ano[0] for ano in anos_unicos if ano[0] is not None]
+        marcas_unicas = [marca[0] for marca in marcas_unicas if marca[0] is not None]
+        modelos_unicos = [modelo[0] for modelo in modelos_unicos if modelo[0] is not None]
+
+        # Aplicar filtros basados en la selección del usuario
+        filters = {}
+        for field in ['ano', 'marca', 'modelo']:
+            value = request.args.get(field)
+            if value:
+                filters[field] = value
+            
+        query = SubastaVentura.query.filter_by(**filters) if filters else SubastaVentura.query
+        paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        return render_template('data.html', data=paginated_data, anos=anos_unicos, marcas=marcas_unicas, modelos=modelos_unicos)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @app.route('/subastas')
+    def subastas():
+        return render_template('subastas.html')
+    
+    
+    @app.route('/client')
+    def client():
+        return render_template('servicios/client.html')
+
+
+    @app.route('/help')
+    def help():
+        return render_template('footer/help.html')
+
+
+    @app.route('/traslados')
+    def mostrar_traslados():
+        datos_traslados = Traslados.query.all()
+        return render_template('costes/traslados.html', traslados=datos_traslados)
+        
 
 # Pagos:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
 
@@ -129,7 +459,6 @@ def init_routes(app):
         return send_from_directory(app.static_folder, request.path[1:])
 
 
-
     @app.route('/sitemap_index.xml')
     def sitemap_index():
         base_url = "https://www.eridan123.com"
@@ -153,7 +482,6 @@ def init_routes(app):
         return render_template('index.html')
 
 
-
     @app.route('/scraping')
     def scraping():
         return render_template('servicios/scraping.html')
@@ -170,7 +498,9 @@ def init_routes(app):
     def automatic():
         return render_template('servicios/automatic.html')
         
-
+    @app.route('/formulariocliente')
+    def formulariocliente():
+        return render_template('servicios/formulariocliente.html')
  
 
 
@@ -438,10 +768,12 @@ def init_routes(app):
 
 
 # Gestión de Perfiles de Usuario:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    
     @app.route('/profile')
     @login_required
     def profile():
-        return render_template('profile.html')
+        return render_template('user/profile.html')
 
 
     @app.route('/recover_password', methods=['GET', 'POST'])
@@ -451,7 +783,7 @@ def init_routes(app):
             # Aquí iría la lógica para enviar un correo electrónico con instrucciones para restablecer la contraseña
             flash('Se han enviado instrucciones para restablecer tu contraseña a tu correo electrónico.', 'info')
             return redirect(url_for('login'))
-        return render_template('recover_password.html', form=form)
+        return render_template('user/recover_password.html', form=form)
 
 
     @app.route('/change_password', methods=['GET', 'POST'])
@@ -469,7 +801,6 @@ def init_routes(app):
                 flash('Contraseña actual incorrecta.', 'danger')
         return render_template('change_password.html', form=form)
 
-
     @app.route('/register', methods=['GET', 'POST'])
     @limiter.limit("50 per minute")
     def register():
@@ -482,19 +813,29 @@ def init_routes(app):
             email = form.email.data.lower()
             username = form.username.data.lower()
             existing_user = Usuario.query.filter(
-                (func.lower(Usuario.email) == email) | 
-                (func.lower(Usuario.nombre_usuario) == username)
+                db.or_(
+                    func.lower(Usuario.email) == email, 
+                    func.lower(Usuario.nombre_usuario) == username
+                )
             ).first()
 
-            if existing_user is None:
+            if existing_user:
+                # Si encuentra un usuario existente, muestra un mensaje de error
+                flash('Un usuario con ese correo electrónico o nombre de usuario ya existe.', 'error')
+            else:
+                # Si no encuentra un usuario, crea uno nuevo
                 hashed_password = generate_password_hash(form.password.data)
                 user = Usuario(email=email, nombre_usuario=username, password_hash=hashed_password)
                 db.session.add(user)
                 db.session.commit()
-                flash('Tu cuenta ha sido creada! Ahora puedes iniciar sesión', 'success')
+                flash('Tu cuenta ha sido creada! Ahora puedes iniciar sesión.', 'success')
                 return redirect(url_for('login'))
-            else:
-                flash('Un usuario con ese correo electrónico o nombre de usuario ya existe')
+
+        else:
+            # Si el formulario no es válido, muestra mensajes de error para cada campo
+            for fieldName, errorMessages in form.errors.items():
+                for err in errorMessages:
+                    flash(f'Error en {fieldName}: {err}', 'error')
 
         return render_template('user/register.html', title='Register', form=form)
 
@@ -540,6 +881,7 @@ def init_routes(app):
             flash('Tu perfil ha sido actualizado.', 'success')
             return redirect(url_for('perfil'))
         return render_template('actualizar_perfil.html', form=form)
+
 
 
 
@@ -661,4 +1003,5 @@ def init_routes(app):
 
 
 # Gestión de Productos-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 

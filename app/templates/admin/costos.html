@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Costos{% endblock %}
+
+{% block contenido %}
+{% include 'navbar.html' %}
+
+<div class="container mx-auto mt-8">
+    <div class="flex flex-wrap -mx-4">
+        <!-- Formulario para añadir costos -->
+        <div class="w-full md:w-1/2 px-4 mb-4 md:mb-0">
+            <h2 class="text-lg font-semibold mb-4">Añadir Costo a {{ auto.marca }} {{ auto.modelo }}</h2>
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                {{ form.costo_adquisicion.label(class="form-label") }}
+                {{ form.costo_adquisicion(class="form-control") }}
+                
+
+                <!-- Añade aquí los campos restantes del formulario -->
+                <div class="mt-4">
+                    {{ form.submit }}
+                </div>
+            </form>
+        </div>
+        <!-- Lista de costos existentes -->
+        <div class="w-full md:w-1/2 px-4">
+            <h2 class="text-lg font-semibold mb-4">Costos Registrados</h2>
+            {% for costo in costos %}
+            <div class="border rounded mb-4 p-4">
+                Costo Adquisición: {{ costo.costo_adquisicion }}<br>
+                <!-- Muestra aquí los demás costos -->
+            </div>
+            {% else %}
+            <p>No hay costos registrados para este auto.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+
+</div>
+
+{% endblock %}

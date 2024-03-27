@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Detalle del Cliente{% endblock %}
+{% block contenido %}
+
+{% include 'navbar.html' %}
+
+<div class="container mx-auto mt-8 px-4 md:px-0">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Detalle del Cliente: {{ usuario.nombre_usuario }}
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-0">
+            <dl>
+                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Información Personal
+                    </dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <p>Email: {{ usuario.email }}</p>
+                        <p>RFC: {{ usuario.rfc | default('No proporcionado') }}</p>
+                    </dd>
+                </div>
+
+
+                <!-- Agregar Inversion -->
+
+                <div class="border-t border-gray-200 px-4 py-5 sm:px-6 bg-white shadow sm:rounded-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Registrar Nueva Inversión</h3>
+                        <a href="{{ url_for('registro_inversion', user_id=usuario.id) }}"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ease-in-out duration-150">
+                            Añadir Inversión
+                        </a>
+                    </div>
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
+                        <dt class="text-sm font-semibold text-gray-600">
+                            Inversiones
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if inversiones %}
+                            <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                                {% for inversion in inversiones %}
+                                <li class="px-3 py-2 flex justify-between items-center">
+                                    <span class="flex-1 font-medium text-gray-800">{{ inversion.descripcion }}</span>
+                                    <span class="font-semibold text-gray-600">{{ inversion.monto | currency}}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-gray-600">El cliente no tiene inversiones registradas.</p>
+                            {% endif %}
+                        </dd>
+                    </div>
+                </div>
+
+
+
+
+        </div>
+
+
+        <!-- Agregar Autos -->
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6 bg-white shadow sm:rounded-lg">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Registrar Nuevo Auto</h3>
+                <a href="{{ url_for('registro_auto', user_id=usuario.id) }}"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
+                    Añadir Auto
+                </a>
+            </div>
+            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5 mt-5">
+                <dt class="text-sm font-semibold text-gray-600">
+                    Autos Asignados
+                </dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {% if autos %}
+                    <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                        {% for auto in autos %}
+                        <a href="{{ url_for('agregar_costo', auto_id=auto.id) }}" <li
+                            class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                            <span class="flex-1 flex items-center font-medium text-gray-800">
+                                {{ auto.marca }} {{ auto.modelo }} - {{ auto.ano }}
+                            </span>
+                        </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-gray-600">El cliente no tiene autos comprados.</p>
+                    {% endif %}
+                </dd>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    </div>
+    </dl>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}

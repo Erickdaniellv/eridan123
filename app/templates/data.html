@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Invierte en Vinreportauto{% endblock %}
+{% block contenido %}
+<div class="p-2 rounded-lg">
+    
+        <form method="get" class="flex flex-col gap-4 md:flex-row md:items-end">
+            <div class="flex-1">
+                <label for="ano" class="block text-sm font-medium text-gray-700">Año:</label>
+                <select name="ano" id="ano" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    <option value="">--Selecciona--</option>
+                    {% for ano in anos %}
+                    <option value="{{ ano }}">{{ ano }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="marca" class="block text-sm font-medium text-gray-700">Marca:</label>
+                <select name="marca" id="marca" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    <option value="">--Selecciona--</option>
+                    {% for marca in marcas %}
+                    <option value="{{ marca }}">{{ marca }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="modelo" class="block text-sm font-medium text-gray-700">Modelo:</label>
+                <select name="modelo" id="modelo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    <option value="">--Selecciona--</option>
+                    {% for modelo in modelos %}
+                    <option value="{{ modelo }}">{{ modelo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-shrink-0">
+                <button type="submit" class="mt-4 md:mt-0 h-full py-2 px-6 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 focus:ring-offset-indigo-200 text-white font-medium rounded-md transition duration-200 ease-in-out shadow">
+                    Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+    
+
+
+<div class="mt-7">
+    {% if data.items %}
+    <div class="hidden sm:block">
+        <table class="min-w-full leading-normal">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Vin</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Marca</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Modelo</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Año</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Imagen</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in data.items %}
+            <tr data-url="{{ url_for('vehiculo_detalle', vin=item.vin) }}" class="cursor-pointer hover:bg-gray-100">
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">
+                        {{ item.vin }}
+                    </p>
+                </td>
+        
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ item.marca }}</p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ item.modelo }}</p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">{{ item.ano }}</p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {% if item.urlsimagenes3aws %}
+                        {% set imagenes = item.urlsimagenes3aws.split(';') %}
+                        <img src="{{ imagenes[0] }}" alt="Imagen de {{ item.marca }} {{ item.modelo }}" width="100" class="img-fluid">
+                    {% else %}
+                        <span>No Image</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    <!-- Diseño alternativo para pantallas pequeñas -->
+    <div class="sm:hidden">
+        {% for item in data.items %}
+        <div class="bg-white p-4 rounded-lg shadow mb-4 cursor-pointer" data-url="{{ url_for('vehiculo_detalle', vin=item.vin) }}">
+                <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    {% if item.urlsimagenes3aws %}
+                        {% set imagenes = item.urlsimagenes3aws.split(';') %}
+                        <img src="{{ imagenes[0] }}" alt="Imagen de {{ item.marca }} {{ item.modelo }}" class="h-20 w-20 object-cover rounded-full">
+                    {% else %}
+                        <span>No Image</span>
+                    {% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-bold text-gray-900 truncate">Vin: {{ item.vin }}</p>
+                    <p class="text-sm text-gray-500">Marca: {{ item.marca }}</p>
+                    <p class="text-sm text-gray-500">Modelo: {{ item.modelo }}</p>
+                    <p class="text-sm text-gray-500">Año: {{ item.ano }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white text-gray-900 p-4">No se encontraron datos</div>
+    {% endif %}
+</div>
+
+
+
+
+
+<div class="py-2 flex justify-between">
+    {% if data.has_prev %}
+    <a href="{{ url_for('show_data', page=data.prev_num, ano=request.args.get('ano'), marca=request.args.get('marca'), modelo=request.args.get('modelo')) }}" class="py-2 px-4 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-200">
+        Anterior
+    </a>
+    {% else %}
+    <!-- Espacio vacío para mantener la alineación cuando no hay botón "Anterior" -->
+    <div></div>
+    {% endif %}
+    {% if data.has_next %}
+    <a href="{{ url_for('show_data', page=data.next_num, ano=request.args.get('ano'), marca=request.args.get('marca'), modelo=request.args.get('modelo')) }}" class="py-2 px-4 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-200">
+        Siguiente
+    </a>
+    {% endif %}
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Maneja clics en las filas de la tabla
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('click', () => {
+                const url = row.getAttribute('data-url');
+                window.location.href = url;
+            });
+        });
+    
+        // Maneja clics en las tarjetas para pantallas pequeñas
+        // Simplificación del selector para coincidir exactamente con la estructura de tu HTML
+        const cards = document.querySelectorAll('div[data-url]');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const url = card.getAttribute('data-url');
+                window.location.href = url;
+            });
+        });
+    });
+    </script>
+            
+
+
+
+
+{% endblock %}

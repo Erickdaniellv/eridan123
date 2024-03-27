@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    {% for item in items %}
+<url>
+  <loc>{{ url_for('main.property_car', marca=item.marca, modelo=item.modelo, ano=item.ano, vin=item.vin, _external=True) }}</loc>
+  <changefreq>weekly</changefreq>
+  <lastmod>2023-11-14T07:35:00+01:00</lastmod>
+  <priority>0.8</priority>
+</url>
+
+    {% endfor %}
+</urlset>

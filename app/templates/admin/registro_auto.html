@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Autos{% endblock %}
+{% block contenido %}
+
+{% include 'navbar.html' %}
+
+<div class="mt-8">
+    <div class="max-w-md mx-auto bg-white shadow-lg rounded-lg md:max-w-lg">
+        <div class="md:flex">
+            <div class="w-full p-4 px-5 py-5">
+                <h3 class="text-xl font-semibold leading-normal">Registro de Auto</h3>
+                <h1 class="text-2xl font-semibold leading-normal text-center mb-6">{{ usuario.nombre_usuario }}</h1>
+
+                <form action="{{ url_for('registro_auto', user_id=usuario.id) }}" method="post">
+                    {{ form.hidden_tag() }}
+                                    <div class="grid md:grid-cols-2 gap-2 mt-5">
+                        <!-- Marca -->
+                        <input type="text" name="marca" placeholder="Marca" required 
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- Modelo -->
+                        <input type="text" name="modelo" placeholder="Modelo" required 
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- Año -->
+                        <input type="number" name="ano" placeholder="Año" required 
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- VIN -->
+                        <input type="text" name="vin" placeholder="VIN" required 
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- Número de lote -->
+                        <input type="text" name="numero_lote" placeholder="Número de lote"
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- Nombre de subasta -->
+                        <input type="text" name="nombre_subasta" placeholder="Nombre de subasta"
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- Localidad -->
+                        <input type="text" name="localidad" placeholder="Localidad"
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                        <!-- Imágenes del auto en subasta -->
+                        <input type="text" name="img" placeholder="URL de imágenes del auto"
+                        class="py-2 px-3 rounded-lg border-2 border-gray-300 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+
+                    </div>
+
+                    <button type="submit"
+                        class="mt-4 mb-3 text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Registrar Auto</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

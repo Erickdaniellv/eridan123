@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /privado/
+Allow: /
+
+Sitemap: https://www.vinreportauto.com/sitemap.xml

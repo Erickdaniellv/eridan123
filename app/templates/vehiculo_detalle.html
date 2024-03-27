@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Invierte en Vinreportauto{% endblock %}
+
+{% block contenido %}
+
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-wrap -mx-4 items-center justify-center">
+
+                <!-- Contenedor de Información del Auto -->
+                <div class="w-full lg:w-1/2 px-4 mb-4 lg:mb-0 order-2 lg:order-1">
+                    <div class="bg-white shadow-lg rounded-lg overflow-hidden p-4 space-y-3">
+                        <h3 class="text-2xl text-gray-800 font-bold">{{ item.vin }}</h3>
+                        <h4 class="text-xl text-gray-700">{{ item.marca }} {{ item.modelo }}</h4>
+                        <p class="text-gray-600">Año: {{ item.ano }}</p>
+                        <p class="text-gray-600">Condición Venta: {{ item.condicion_venta }}</p>
+                        <p class="text-gray-600">Precio Siniestro: {{ item.precio_siniestro | currency }}</p>
+                        <p class="text-gray-600">Vendedor: {{ item.vendedor }}</p>
+                        <p class="text-gray-600">Color: {{ item.color }}</p>
+                        <p class="text-gray-600">Torre: {{ item.torre }}</p>
+                        <p class="text-gray-600">Ubicación: {{ item.ubicacion }}</p>
+                        <button id="startPayment" class="mt-4 px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 transition duration-150 ease-in-out">
+                            Borrar publicación
+                        </button>
+                    </div>
+                </div>
+        
+        <!-- Contenedor del Carrusel de Imágenes -->
+        <div class="w-full lg:w-1/2 px-4 mb-4 lg:mb-0">
+            <div id="carouselExampleControls{{ item.id }}" class="carousel relative" data-ride="carousel">
+                <div class="carousel-inner overflow-hidden relative" style="height: 400px;">
+                    {% if item.urlsimagenes3aws %}
+                        {% set imagenes = item.urlsimagenes3aws.split(';') %}
+                        {% for image_url in imagenes %}
+                            <div class="carousel-item absolute transition-opacity duration-500 ease-in-out {{ 'opacity-100' if loop.first else 'opacity-0' }}" style="width: 100%;">
+                                <img src="{{ image_url.strip() }}" class="block w-full rounded object-cover h-full">
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">No Image</div>
+                    {% endif %}
+                </div>
+                <!-- Controladores ajustados para centrar correctamente -->
+                <button class="carousel-control-prev absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-full lg:-translate-x-1/2 bg-gray-800 bg-opacity-70 text-white rounded-full p-3 cursor-pointer z-20" onclick="moveSlide('{{ item.id }}', -1)">
+                    &#10094;
+                </button>
+                <button class="carousel-control-next absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-full lg:translate-x-1/2 bg-gray-800 bg-opacity-70 text-white rounded-full p-3 cursor-pointer z-20" onclick="moveSlide('{{ item.id }}', 1)">
+                    &#10095;
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="card-details mt-5 p-3 bg-white shadow-lg rounded-lg overflow-hidden">
+    <div class="p-4">
+        <h6 class="font-bold text-gray-800 text-lg mb-2">Documentos:</h6>
+        <ul class="list-disc pl-5">
+            {% set documentos = item.urlsdocumentos3aws.split(';') %}
+            {% for documento in documentos %}
+            <li class="mt-1">
+                <a href="{{ documento.strip() }}" target="_blank"
+                    class="text-blue-500 hover:text-blue-600 transition duration-150 ease-in-out">Descargar
+                    Documento</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let currentSlide = 0;
+        const slides = document.querySelectorAll(`#carouselExampleControls{{ item.id }} .carousel-item`);
+        const totalSlides = slides.length;
+    
+        function showSlide(index) {
+            slides.forEach((slide, idx) => {
+                // Primero, se asegura de que todas las diapositivas estén ocultas.
+                slide.classList.remove('opacity-100');
+                slide.classList.add('opacity-0');
+    
+                // Luego, muestra la diapositiva activa.
+                if (idx === index) {
+                    slide.classList.remove('opacity-0');
+                    slide.classList.add('opacity-100');
+                }
+            });
+        }
+    
+        window.moveSlide = function(itemId, step) {
+            currentSlide = (currentSlide + step + totalSlides) % totalSlides;
+            showSlide(currentSlide);
+        };
+    
+        // Inicializa el primer slide como visible al cargar la página.
+        showSlide(currentSlide);
+    });
+    </script>
+    
+{% endblock %}
