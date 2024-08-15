@@ -7,6 +7,30 @@ from datetime import datetime, timedelta
 
 
 
+class MiTabla(db.Model):
+    __tablename__ = 'saldos_cartera'  # Nombre opcional de la tabla
+    
+    id = db.Column(db.Integer, primary_key=True)
+    empresa = db.Column(db.Integer, nullable=False)
+    llave_sucursal_doc = db.Column(db.String(20), nullable=False)
+    sucursal = db.Column(db.Integer, nullable=False)
+    cartera = db.Column(db.Integer, nullable=False)
+    tipo_movimiento = db.Column(db.String(10), nullable=False)
+    cod_cliente = db.Column(db.String(10), nullable=False)
+    nombre_cliente = db.Column(db.String(255), nullable=False)
+    limite_credito = db.Column(db.Numeric, nullable=True)  # Puede ser NULL según el ejemplo
+    documento = db.Column(db.String(20), nullable=False)
+    fecha_documento = db.Column(db.Date, nullable=False)
+    fecha_movimiento = db.Column(db.Date, nullable=False)
+    dias_transcurridos = db.Column(db.Integer, nullable=False)
+    importe_original = db.Column(db.Numeric, nullable=False)
+    importe_iva = db.Column(db.Numeric, nullable=False)
+    tasa_iva = db.Column(db.Numeric, nullable=False)
+    saldo_actual = db.Column(db.Numeric, nullable=False)
+    tipo_moneda = db.Column(db.String(10), nullable=False)
+
+
+
 class Usuario(UserMixin, db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)

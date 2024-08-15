@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitud de Servicios - Eridan123{% endblock %}
+
+{% block contenido %}
+<div class="bg-white py-6 sm:py-8 lg:py-12">
+    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+      <!-- texto - inicio -->
+      <div class="mb-10 md:mb-16">
+        <h2 class="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-6 lg:text-3xl">Solicitud de Servicios</h2>
+        <p class="mx-auto max-w-screen-md text-center text-gray-500 md:text-lg">Cuéntanos cómo podemos ayudarte seleccionando el servicio que necesitas a continuación.</p>
+      </div>
+      <!-- texto - fin -->
+  
+      <!-- formulario - inicio -->
+      <form class="mx-auto w-full max-w-xl space-y-6 bg-gray-50 p-8 rounded-lg shadow-lg" action="#ruta-a-tu-servidor" method="POST">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="nombre" class="block text-sm text-gray-800 sm:text-base">Nombre completo*</label>
+            <input id="nombre" name="nombre" type="text" class="mt-1 w-full rounded-md border bg-white px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring" required>
+          </div>
+          
+          <div>
+            <label for="email" class="block text-sm text-gray-800 sm:text-base">Correo electrónico*</label>
+            <input id="email" name="email" type="email" class="mt-1 w-full rounded-md border bg-white px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring" required>
+          </div>
+        </div>
+  
+        <div>
+          <label for="organizacion" class="block text-sm text-gray-800 sm:text-base">Organización (opcional)</label>
+          <input id="organizacion" name="organizacion" type="text" class="mt-1 w-full rounded-md border bg-white px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring">
+        </div>
+  
+        <div>
+          <label for="servicio" class="block text-sm text-gray-800 sm:text-base">¿Qué servicio buscas?*</label>
+          <select id="servicio" name="servicio" class="mt-1 w-full rounded-md border bg-white px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring" required>
+            <option value="">Selecciona un servicio</option>
+            <option value="diseno_grafico">Quiero diseño gráfico para mi marca</option>
+            <option value="admin_redes">Quiero administración de redes sociales</option>
+            <option value="tienda_online">Quiero una tienda en línea</option>
+            <option value="sitio_web">Quiero un sitio web</option>
+            <option value="crm_erp">Quiero un CRM o ERP</option>
+            <option value="facturacion_electronica">Quiero facturación electrónica (México)</option>
+            <option value="consultoria_ti">Quiero consultoría en TI</option>
+            <option value="soporte_sistemas">Quiero soporte para los sistemas de mi empresa</option>
+            <option value="app_movil">Quiero una app móvil</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+  
+        <div>
+          <label for="message" class="block text-sm text-gray-800 sm:text-base">Mensaje o detalles adicionales (opcional)</label>
+          <textarea id="message" name="message" rows="4" class="mt-1 w-full rounded-md border bg-white px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"></textarea>
+        </div>
+  
+        <div class="flex items-center justify-between">
+          <button type="submit" class="rounded-lg bg-indigo-500 px-8 py-3 text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700">Enviar Solicitud</button>
+          <span class="text-sm text-gray-500">*Campos requeridos</span>
+        </div>
+      </form>
+      <!-- formulario - fin -->
+    </div>
+  </div>
+{% endblock %}
+

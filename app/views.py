@@ -1,5 +1,5 @@
-# C:\Users\Erick Lopez2\Desktop\eccomerce\app\views.py
-from .models import Producto, Usuario, Cartitem, Cartsession, Order, OrderItem, ShippingAddress
+# C:\Users\Erick Lopez2\Desktop\eccomerce\app\app.py
+from .models import Producto, Usuario, Cartitem, Cartsession, Order, OrderItem, ShippingAddress, MiTabla
 from flask import Response, current_app, make_response, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 from . import db, limiter, mail, csrf, cache  
 from .forms import UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
@@ -13,9 +13,13 @@ from sqlalchemy.orm import joinedload
 import xml.etree.ElementTree as ET
 from urllib.parse import quote
 from math import ceil
-from sqlalchemy import func
+from sqlalchemy import func, case, and_
 import logging
 import re
+import requests
+from datetime import datetime
+import pandas as pd
+from io import BytesIO
 
 
 
@@ -27,6 +31,368 @@ def init_routes(app):
 
     # Registrar el filtro con Jinja2
     app.jinja_env.filters['currency'] = format_currency
+
+
+
+
+
+    @app.route('/download_and_process')
+    def download_and_process():
+        # URL del archivo Excel
+        url = "http://app.gtepeyac.com/arbours/comercial/TMP/CONSOLIDADOS%20SALDOS%20DE%20CARTERA68267.XLSX"
+        
+        # Realiza la solicitud HTTP para descargar el archivo
+        response = requests.get(url)
+        if response.status_code == 200:
+            try:
+                # Lee el archivo Excel a partir de la fila 4 donde están los encabezados
+                excel_data = pd.read_excel(BytesIO(response.content), header=3)
+                
+                # Limpia los nombres de las columnas
+                excel_data.columns = excel_data.columns.str.strip().str.upper()
+
+                # Manejo de NaN: reemplazar por valores por defecto
+                excel_data['EMPRESA'] = excel_data['EMPRESA'].fillna(0).astype(int)
+                excel_data['SUCURSAL'] = excel_data['SUCURSAL'].fillna(0).astype(int)
+                excel_data['CARTERA'] = excel_data['CARTERA'].fillna(0).astype(int)
+                excel_data['LLAVE SUC. DOC.'] = excel_data['LLAVE SUC. DOC.'].fillna('')
+                excel_data['TIPO MOVIMIENTO'] = excel_data['TIPO MOVIMIENTO'].fillna('')
+                excel_data['COD. CLIENTE'] = excel_data['COD. CLIENTE'].fillna('')
+                excel_data['NOMBRE CLIENTE'] = excel_data['NOMBRE CLIENTE'].fillna('')
+                excel_data['TIPO MONEDA'] = excel_data['TIPO MONEDA'].fillna('')
+                excel_data['LÍMITE CRÉDITO'] = excel_data['LÍMITE CRÉDITO'].fillna(0)
+                excel_data['IMPORTE ORIGINAL'] = excel_data['IMPORTE ORIGINAL'].fillna(0)
+                excel_data['IMPORTE IVA'] = excel_data['IMPORTE IVA'].fillna(0)
+                excel_data['TASA IVA'] = excel_data['TASA IVA'].fillna(0)
+                excel_data['SALDO ACTUAL'] = excel_data['SALDO ACTUAL'].fillna(0)
+
+                # Reemplazar NaN en fechas con una fecha por defecto
+                fecha_defecto = datetime(1970, 1, 1)
+                excel_data['FECHA DOCUMENTO'] = excel_data['FECHA DOCUMENTO'].apply(lambda x: x.date() if pd.notnull(x) else fecha_defecto.date())
+                excel_data['FECHA MOVIMIENTO'] = excel_data['FECHA MOVIMIENTO'].apply(lambda x: x.date() if pd.notnull(x) else fecha_defecto.date())
+
+                # Eliminar todos los registros existentes en la tabla
+                db.session.query(MiTabla).delete()
+                db.session.commit()
+
+                # Filtrar los registros excluyendo las carteras 50 y 51, y facturas con SALDO ACTUAL menor a 8
+                excel_data_filtrado = excel_data[
+                    (excel_data['CARTERA'] != 50) & 
+                    (excel_data['CARTERA'] != 51) & 
+                    (excel_data['SALDO ACTUAL'] >= 8)
+                ]
+
+                # Calcular los días de crédito como la diferencia entre FECHA MOVIMIENTO y FECHA DOCUMENTO
+                excel_data_filtrado['DIAS CREDITO'] = excel_data_filtrado.apply(
+                    lambda row: (row['FECHA MOVIMIENTO'] - row['FECHA DOCUMENTO']).days, axis=1
+                )
+                
+                # Calcular los días transcurridos considerando los días de crédito
+                fecha_hoy = datetime.now().date()
+                excel_data_filtrado['DIAS TRANSCURRIDOS'] = excel_data_filtrado.apply(
+                    lambda row: (fecha_hoy - row['FECHA DOCUMENTO']).days - row['DIAS CREDITO'], axis=1
+                )
+
+                # Insertar los nuevos datos
+                for _, row in excel_data_filtrado.iterrows():
+                    nuevo_registro = MiTabla(
+                        empresa=row['EMPRESA'],
+                        llave_sucursal_doc=row['LLAVE SUC. DOC.'],
+                        sucursal=row['SUCURSAL'],
+                        cartera=row['CARTERA'],
+                        tipo_movimiento=row['TIPO MOVIMIENTO'],
+                        cod_cliente=row['COD. CLIENTE'],
+                        nombre_cliente=row['NOMBRE CLIENTE'].strip(),
+                        limite_credito=float(row['LÍMITE CRÉDITO']),
+                        documento=row['DOCUMENTO'],
+                        fecha_documento=row['FECHA DOCUMENTO'],
+                        fecha_movimiento=row['FECHA MOVIMIENTO'],
+                        dias_transcurridos=row['DIAS TRANSCURRIDOS'],  # Usando el valor calculado
+                        importe_original=float(row['IMPORTE ORIGINAL']),
+                        importe_iva=float(row['IMPORTE IVA']),
+                        tasa_iva=float(row['TASA IVA']),
+                        saldo_actual=float(row['SALDO ACTUAL']),
+                        tipo_moneda=row['TIPO MONEDA'].strip()
+                    )
+                    db.session.add(nuevo_registro)
+                
+                # Guardar todos los cambios
+                db.session.commit()
+                return jsonify({'status': 'success', 'message': 'Datos guardados correctamente'}), 200
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({'status': 'error', 'message': str(e)}), 500
+        else:
+            return jsonify({'status': 'error', 'message': 'Error al descargar el archivo'}), 400
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    SUCURSALES = {
+        1: '1-OBREGON',
+        2: '2-NAVOJOA',
+        3: '3-HUATABAMPO',
+        4: '4-HERMOSILLO',
+        5: '5-CASE',
+        6: '6-CABORCA',
+        7: '7-MEXICALI',
+        8: '8-QUERETARO',
+        9: '9-SAN JUAN DEL RIO',
+        11: '11-MANEADERO'
+    }
+
+    CARTERAS = {
+        1: '1-REFACCIONES Y ACEITES',
+        2: '2-SERVICIO',
+        3: '3-IMPLEMENTOS',
+        4: '4-CHEQUES DEVUELTOS',
+        5: '5-CNH CAPITAL',
+        6: '6-MAQUILAS',
+        7: '7-MAQUINARIA DOLARES',
+        8: '8-NO USAR COMPLEM.',
+        9: '9-MAQUINARIA EN DLS. FACT. M.N.',
+        10: '10-FILIALES',
+        11: '11-ARRENDAMIENTO',
+        12: '12-REFACCIONES MINERIA',
+        13: '13-MAQ. CONSTRUCCION M.N.',
+        14: '14-MAQ. CONSTRUCC. DLS.',
+        16: '16-TRACTORES M.N.',
+        17: '17-TRACTORES DOLARES',
+        19: '19-RENTA DE MAQUINARIA M.N.',
+        20: '20-RENTA DE MAQUINARIA DLS.',
+        21: '21-RENTAS MAQ. DLS',
+        30: '30-OTRAS CXC',
+        50: '50-CARTERA INCOBRABLE',
+        51: '51-DEPOSITOS SIN IDENTIFICAR',
+        99: '99-CONSOLIDADO'
+    }
+
+    @app.route('/api_detalle_cartera', methods=['GET'])
+    def api_detalle_cartera():
+        tipo_moneda = request.args.get('tipo_moneda', 'PESOS')
+        sucursal_id = request.args.get('sucursal', type=int)
+        cartera_id = request.args.get('cartera', type=int)
+        dias_range = request.args.get('dias_range', type=str)
+
+        if not sucursal_id or not cartera_id or not dias_range:
+            return jsonify({"error": "sucursal, cartera y dias_range son parámetros requeridos"}), 400
+
+        # Consulta inicial
+        detalle_cartera = db.session.query(
+            MiTabla.cod_cliente,
+            MiTabla.nombre_cliente,
+            MiTabla.dias_transcurridos,
+            MiTabla.saldo_actual
+        ).filter(
+            MiTabla.sucursal == sucursal_id,
+            MiTabla.cartera == cartera_id,
+            MiTabla.tipo_moneda == tipo_moneda
+        )
+
+        # Aplicar filtro según el rango de días
+        if dias_range == '1-30':
+            detalle_cartera = detalle_cartera.filter(MiTabla.dias_transcurridos.between(1, 30))
+        elif dias_range == '31-60':
+            detalle_cartera = detalle_cartera.filter(MiTabla.dias_transcurridos.between(31, 60))
+        elif dias_range == '61-90':
+            detalle_cartera = detalle_cartera.filter(MiTabla.dias_transcurridos.between(61, 90))
+        elif dias_range == '>90':
+            detalle_cartera = detalle_cartera.filter(MiTabla.dias_transcurridos > 90)
+        else:
+            return jsonify({"error": "Rango de días inválido"}), 400
+
+        # Ejecutar la consulta y convertir los resultados a JSON
+        detalle_cartera = detalle_cartera.all()
+
+        detalle_cartera_json = [
+            {
+                'cod_cliente': cliente.cod_cliente,
+                'nombre_cliente': cliente.nombre_cliente,
+                'dias_transcurridos': cliente.dias_transcurridos,
+                'saldo_actual': float(cliente.saldo_actual)
+            }
+            for cliente in detalle_cartera
+        ]
+
+        return jsonify({
+            'detalle_cartera': detalle_cartera_json
+        })
+
+
+
+    @app.route('/api_saldos-por-sucursal')
+    def api_saldos_por_sucursal():
+        tipo_moneda_seleccionada = request.args.get('tipo_moneda', 'PESOS')
+        sucursal_seleccionada = request.args.get('sucursal', type=int)
+
+        # Consulta principal por sucursal
+        datos_sucursal = db.session.query(
+            MiTabla.sucursal,
+            func.sum(MiTabla.saldo_actual).label('saldo_total'),
+            func.sum(
+                case(
+                    (MiTabla.dias_transcurridos <= 0, MiTabla.saldo_actual),
+                    else_=0
+                )
+            ).label('saldo_no_vencido'),
+            func.sum(
+                case(
+                    (and_(MiTabla.dias_transcurridos > 0, MiTabla.dias_transcurridos <= 30), MiTabla.saldo_actual),
+                    else_=0
+                )
+            ).label('saldo_1_30'),
+            func.sum(
+                case(
+                    (and_(MiTabla.dias_transcurridos > 30, MiTabla.dias_transcurridos <= 60), MiTabla.saldo_actual),
+                    else_=0
+                )
+            ).label('saldo_31_60'),
+            func.sum(
+                case(
+                    (and_(MiTabla.dias_transcurridos > 60, MiTabla.dias_transcurridos <= 90), MiTabla.saldo_actual),
+                    else_=0
+                )
+            ).label('saldo_61_90'),
+            func.sum(
+                case(
+                    (MiTabla.dias_transcurridos > 90, MiTabla.saldo_actual),
+                    else_=0
+                )
+            ).label('saldo_91_mas')
+        ).filter(
+            MiTabla.tipo_moneda == tipo_moneda_seleccionada
+        ).group_by(MiTabla.sucursal).all()
+
+        # Calcular totales generales por columna en `datos_sucursal`
+        total_saldo_total = sum([fila.saldo_total for fila in datos_sucursal])
+        total_saldo_no_vencido = sum([fila.saldo_no_vencido for fila in datos_sucursal])
+        total_saldo_1_30 = sum([fila.saldo_1_30 for fila in datos_sucursal])
+        total_saldo_31_60 = sum([fila.saldo_31_60 for fila in datos_sucursal])
+        total_saldo_61_90 = sum([fila.saldo_61_90 for fila in datos_sucursal])
+        total_saldo_91_mas = sum([fila.saldo_91_mas for fila in datos_sucursal])
+
+        # Formatear los datos en un diccionario para la respuesta JSON
+        datos_sucursal_json = [
+            {
+                'sucursal': fila.sucursal,
+                'saldo_total': float(fila.saldo_total),
+                'saldo_no_vencido': float(fila.saldo_no_vencido),
+                'saldo_1_30': float(fila.saldo_1_30),
+                'saldo_31_60': float(fila.saldo_31_60),
+                'saldo_61_90': float(fila.saldo_61_90),
+                'saldo_91_mas': float(fila.saldo_91_mas)
+            }
+            for fila in datos_sucursal
+        ]
+
+        # Consulta secundaria por cartera si una sucursal está seleccionada
+        datos_cartera_json = []
+        if sucursal_seleccionada:
+            datos_cartera = db.session.query(
+                MiTabla.cartera,
+                MiTabla.sucursal,
+                func.sum(MiTabla.saldo_actual).label('saldo_total'),
+                func.sum(
+                    case(
+                        (MiTabla.dias_transcurridos <= 0, MiTabla.saldo_actual),
+                        else_=0
+                    )
+                ).label('saldo_no_vencido'),
+                func.sum(
+                    case(
+                        (and_(MiTabla.dias_transcurridos > 0, MiTabla.dias_transcurridos <= 30), MiTabla.saldo_actual),
+                        else_=0
+                    )
+                ).label('saldo_1_30'),
+                func.sum(
+                    case(
+                        (and_(MiTabla.dias_transcurridos > 30, MiTabla.dias_transcurridos <= 60), MiTabla.saldo_actual),
+                        else_=0
+                    )
+                ).label('saldo_31_60'),
+                func.sum(
+                    case(
+                        (and_(MiTabla.dias_transcurridos > 60, MiTabla.dias_transcurridos <= 90), MiTabla.saldo_actual),
+                        else_=0
+                    )
+                ).label('saldo_61_90'),
+                func.sum(
+                    case(
+                        (MiTabla.dias_transcurridos > 90, MiTabla.saldo_actual),
+                        else_=0
+                    )
+                ).label('saldo_91_mas')
+            ).filter(
+                MiTabla.sucursal == sucursal_seleccionada,
+                MiTabla.tipo_moneda == tipo_moneda_seleccionada
+            ).group_by(MiTabla.cartera, MiTabla.sucursal).all()
+
+            datos_cartera_json = [
+                {
+                    'cartera': fila.cartera,
+                    'sucursal': fila.sucursal,
+                    'saldo_total': float(fila.saldo_total),
+                    'saldo_no_vencido': float(fila.saldo_no_vencido),
+                    'saldo_1_30': float(fila.saldo_1_30),
+                    'saldo_31_60': float(fila.saldo_31_60),
+                    'saldo_61_90': float(fila.saldo_61_90),
+                    'saldo_91_mas': float(fila.saldo_91_mas)
+                }
+                for fila in datos_cartera
+            ]
+
+        # Respuesta en formato JSON
+        return jsonify({
+            'tipo_moneda': tipo_moneda_seleccionada,
+            'sucursal_seleccionada': sucursal_seleccionada,
+            'datos_sucursal': datos_sucursal_json,
+            'totales': {
+                'total_saldo_total': total_saldo_total,
+                'total_saldo_no_vencido': total_saldo_no_vencido,
+                'total_saldo_1_30': total_saldo_1_30,
+                'total_saldo_31_60': total_saldo_31_60,
+                'total_saldo_61_90': total_saldo_61_90,
+                'total_saldo_91_mas': total_saldo_91_mas
+            },
+            'datos_cartera': datos_cartera_json,
+            'nombresSucursales': SUCURSALES,
+            'nombresCarteras': CARTERAS
+        })
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -153,7 +519,6 @@ def init_routes(app):
         return render_template('index.html')
 
 
-
     @app.route('/scraping')
     def scraping():
         return render_template('servicios/scraping.html')
@@ -170,7 +535,9 @@ def init_routes(app):
     def automatic():
         return render_template('servicios/automatic.html')
         
-
+    @app.route('/formulariocliente')
+    def formulariocliente():
+        return render_template('servicios/formulariocliente.html')
  
 
 
@@ -441,7 +808,7 @@ def init_routes(app):
     @app.route('/profile')
     @login_required
     def profile():
-        return render_template('profile.html')
+        return render_template('user/profile.html')
 
 
     @app.route('/recover_password', methods=['GET', 'POST'])
@@ -451,7 +818,7 @@ def init_routes(app):
             # Aquí iría la lógica para enviar un correo electrónico con instrucciones para restablecer la contraseña
             flash('Se han enviado instrucciones para restablecer tu contraseña a tu correo electrónico.', 'info')
             return redirect(url_for('login'))
-        return render_template('recover_password.html', form=form)
+        return render_template('user/recover_password.html', form=form)
 
 
     @app.route('/change_password', methods=['GET', 'POST'])
@@ -540,6 +907,7 @@ def init_routes(app):
             flash('Tu perfil ha sido actualizado.', 'success')
             return redirect(url_for('perfil'))
         return render_template('actualizar_perfil.html', form=form)
+
 
 
 

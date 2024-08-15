@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta name="google-site-verification" content="DaKCVIiBBvEbY1K5l_eAwYqvsdpCOsT232jQD96YgU8"/>
+    <meta name="google-site-verification" content="DaKCVIiBBvEbY1K5l_eAwYqvsdpCOsT232jQD96YgU8" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eridan123</title>
@@ -11,11 +11,11 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z362DMJ2DW"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-Z362DMJ2DW');
+    gtag('config', 'G-Z362DMJ2DW');
 </script>
 
 
@@ -72,18 +72,33 @@
                     </div>
 
                     <a href="{{ url_for('contact') }}"
-                        class="text-lg font-semibold text-gray-600 transition duration-100 hover:text-indigo-500 active:text-indigo-700">Conctacto</a>
+                        class="text-lg font-semibold text-gray-600 transition duration-100 hover:text-indigo-500 active:text-indigo-700">Contacto</a>
                 </nav>
                 <!-- nav - end -->
 
                 <!-- buttons - start -->
+
+                <!-- Botones de Registro y Acceso para usuarios no autenticados -->
+                {% if current_user.is_authenticated %}
+                <div class="-ml-8 hidden flex-col gap-2.5 sm:flex-row sm:justify-center lg:flex lg:justify-start">
+                    <!-- Muestra el nombre del usuario y el enlace de cierre de sesión -->
+                    
+                    
+                    <a href="{{ url_for('logout') }}" class="inline-block rounded-lg px-4 py-3 text-center text-sm font-semibold text-gray-500 outline-none ring-indigo-300 transition duration-100 md:text-base">Exit </a> 
+                    
+
+                    <a href="{{ url_for('profile') }}" class="inline-block rounded-lg bg-indigo-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">{{ current_user.nombre_usuario | title }}</a>
+                
+                
+                </div>
+                {% else %}
                 <div class="-ml-8 hidden flex-col gap-2.5 sm:flex-row sm:justify-center lg:flex lg:justify-start">
                     <a href="{{ url_for('register') }}"
                         class="inline-block rounded-lg px-4 py-3 text-center text-sm font-semibold text-gray-500 outline-none ring-indigo-300 transition duration-100 hover:text-indigo-500 focus-visible:ring active:text-indigo-600 md:text-base">Registro</a>
-
                     <a href="{{ url_for('login') }}"
                         class="inline-block rounded-lg bg-indigo-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-indigo-600 focus-visible:ring active:bg-indigo-700 md:text-base">Acceso</a>
                 </div>
+                {% endif %}
 
 
                 <div x-data="{ open: false }">
@@ -301,7 +316,7 @@
                     <!-- nav - end -->
                 </div>
 
-                <div class="border-t py-8 text-center text-sm text-gray-400">Eridan123 © 2022. Todos los derechos
+                <div class="border-t py-8 text-center text-sm text-gray-400">Eridan123 © 2024. Todos los derechos
                     reservados.
                 </div>
             </div>

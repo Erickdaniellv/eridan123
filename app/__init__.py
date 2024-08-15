@@ -9,6 +9,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_mail import Mail
 import os
 from flask_caching import Cache
+from flask_cors import CORS
 
 
 # Inicializar las extensiones fuera de create_app
@@ -24,13 +25,15 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
     csrf.init_app(app)
-    db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
     limiter.init_app(app)
     mail.init_app(app)
     cache.init_app(app)
+    db.init_app(app)
+    CORS(app)
+
 
     # seguridad CSP
     #@app.before_request
