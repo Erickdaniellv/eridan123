@@ -1,0 +1,24 @@
+{% extends 'pedidos/basepedidos.html' %}
+{% block title %}Seleccionar Leche{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Seleccionar Leche</h2>
+<form method="POST" class="space-y-6 max-w-md">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div>
+        <h3 class="font-semibold mb-2">Tipo de Leche:</h3>
+        <div class="space-y-2">
+            {% for leche in tipos_de_leche %}
+            <label class="block bg-white p-2 rounded shadow cursor-pointer hover:shadow-lg transition-shadow">
+                <input type="radio" name="leche" value="{{ leche }}" required class="mr-2">
+                {{ leche }}
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
+        Siguiente (Elegir Extras)
+    </button>
+</form>
+{% endblock %}

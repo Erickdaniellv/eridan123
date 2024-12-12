@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Producto{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="container mx-auto max-w-lg">
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Editar Producto</h1>
+            <a href="{{ url_for('admin_dashboard') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
+                Volver al Panel
+            </a>
+        </div>
+
+        <!-- Formulario de Edición -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <div>
+                    {{ form.nombre.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.nombre(class="mt-1 block w-full p-2 border border-gray-300 rounded-lg") }}
+                    {% for error in form.nombre.errors %}
+                    <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.descripcion.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.descripcion(class="mt-1 block w-full p-2 border border-gray-300 rounded-lg") }}
+                    {% for error in form.descripcion.errors %}
+                    <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div>
+                    {{ form.precio_base.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.precio_base(class="mt-1 block w-full p-2 border border-gray-300 rounded-lg") }}
+                    {% for error in form.precio_base.errors %}
+                    <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <a href="{{ url_for('admin_dashboard') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

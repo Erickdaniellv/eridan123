@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Tamaños{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="container mx-auto space-y-6">
+        <!-- Alertas -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="space-y-4">
+            {% for category, message in messages %}
+            <div class="p-4 rounded-lg shadow 
+                {% if category == 'success' %} bg-green-100 text-green-800 
+                {% elif category == 'danger' %} bg-red-100 text-red-800 
+                {% elif category == 'warning' %} bg-yellow-100 text-yellow-800 
+                {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between bg-white p-6 rounded-lg shadow">
+            <h1 class="text-2xl font-bold text-gray-800">Gestión de Tamaños</h1>
+            <a href="{{ url_for('dashboard') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
+                Volver al Dashboard
+            </a>
+        </div>
+
+        <!-- Formulario para agregar tamaño -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Agregar Tamaño</h2>
+            <form method="POST" class="space-y-4">
+                {{ form.hidden_tag() }}
+                <div>
+                    {{ form.nombre.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.nombre(class="mt-1 block w-full p-2 border border-gray-300 rounded-lg") }}
+                    {% for error in form.nombre.errors %}
+                    <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div>
+                    {{ form.precio_extra.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.precio_extra(class="mt-1 block w-full p-2 border border-gray-300 rounded-lg") }}
+                    {% for error in form.precio_extra.errors %}
+                    <span class="text-red-500 text-sm">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="flex justify-end">
+                    {{ form.submit(class="bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de tamaños existentes -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Tamaños Existentes</h2>
+            <table class="w-full border-collapse bg-white shadow rounded-lg overflow-hidden">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Nombre</th>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Precio Extra</th>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-600">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tamano in tamanos %}
+                    <tr class="border-t hover:bg-gray-50">
+                        <td class="py-3 px-4 text-sm text-gray-700">{{ tamano.nombre }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-700">${{ tamano.precio_extra }}</td>
+                        <td class="py-3 px-4 text-sm text-gray-700">
+                            <form method="POST" action="{{ url_for('eliminar_tamano', tamano_id=tamano.id) }}" class="inline">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('¿Estás seguro de eliminar este tamaño?');">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="py-3 px-4 text-center text-sm text-gray-500">No hay tamaños definidos.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

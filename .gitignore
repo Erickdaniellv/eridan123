@@ -10,3 +10,4 @@ venv/
 *.swp
 node_modules/
 /db/catalogo.db
+/instance/mydatabase.db

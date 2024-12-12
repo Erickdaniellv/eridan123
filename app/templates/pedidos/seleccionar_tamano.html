@@ -1,0 +1,17 @@
+{% extends 'pedidos/basepedidos.html' %}
+
+{% block title %}Seleccionar Tamaño{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Seleccionar Tamaño para: {{ producto.nombre }}</h2>
+<form method="POST" class="space-y-4 max-w-md">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for t in tamanos %}
+    <label class="block bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition-shadow">
+        <input type="radio" name="tamano_id" value="{{ t.id }}" class="mr-2" required>
+        {{ t.nombre }} (+${{ t.precio_extra }})
+    </label>
+    {% endfor %}
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Continuar</button>
+</form>
+{% endblock %}

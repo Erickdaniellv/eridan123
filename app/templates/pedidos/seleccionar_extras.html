@@ -1,0 +1,25 @@
+{% extends 'pedidos/basepedidos.html' %}
+{% block title %}Seleccionar Extras{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Seleccionar Extras</h2>
+<form method="POST" class="space-y-6 max-w-md">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div>
+        <h3 class="font-semibold mb-2">Extras ($5 c/u):</h3>
+        <div class="space-y-2">
+            {% for extra in extras_disponibles %}
+            <label class="block bg-white p-2 rounded shadow cursor-pointer hover:shadow-lg transition-shadow">
+                <input type="checkbox" name="extras" value="{{ extra }}" class="mr-2">
+                {{ extra }}
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="flex space-x-2">
+        <button type="submit" name="continuar" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Agregar otro producto</button>
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 text-sm">Finalizar Pedido</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Opciones Administrativas{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="container mx-auto space-y-6">
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-gray-800">Panel de Administración</h1>
+            <a href="{{ url_for('profile') }}" class="flex items-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                </svg>
+                <span>Regresar al Perfil</span>
+            </a>
+        </div>
+
+        <!-- Opciones Administrativas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card: Caffe -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-blue-500 mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 3v18h14V3H5zm2 2h10v14H7V5zm3 16v2h4v-2H10z" />
+                </svg>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Caffe</h2>
+                <p class="text-gray-600 text-center mb-4">
+                    Administra tus productos de café, agrega, edita y elimina opciones fácilmente.
+                </p>
+                <a href="{{ url_for('admin_dashboard') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300">
+                    Administrar Caffe
+                </a>
+            </div>
+
+            <!-- Card: Tamaño -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 4h18v14H3zM5 6v10h14V6H5zm2 12v2h10v-2H7z" />
+                </svg>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Tamaño</h2>
+                <p class="text-gray-600 text-center mb-4">
+                    Gestiona los tamaños disponibles y define los costos adicionales según el tamaño.
+                </p>
+                <a href="{{ url_for('tamanos') }}" class="bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300">
+                    Administrar Tamaños
+                </a>
+            </div>
+
+            <!-- Card: Opciones -->
+            <div class="bg-white shadow-md rounded-lg p-6 flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-purple-500 mb-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3c-4.97 0-9 3.58-9 8s4.03 8 9 8 9-3.58 9-8-4.03-8-9-8zm0 14c-3.86 0-7-2.69-7-6s3.14-6 7-6 7 2.69 7 6-3.14 6-7 6zm-3-6h6v-2h-6v2zm0 4h4v-2h-4v2z" />
+                </svg>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Opciones</h2>
+                <p class="text-gray-600 text-center mb-4">
+                    Agrega, edita y gestiona opciones como tipos de azúcar, leche y extras.
+                </p>
+                <a href="{{ url_for('opciones') }}" class="bg-purple-500 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300">
+                    Gestionar Opciones
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
