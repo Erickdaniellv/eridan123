@@ -3,7 +3,7 @@ import os
 
 class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///C:/Users/Erick Lopez/Desktop/WEBS/eridan123/instance/mydatabase.db')
-    #SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///mydatabase.db')
+    #SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:////home/erickdaniellv/eridan123/instance/mydatabase.db')
 
     #SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:////home/erickdaniellv/eridan123/db/catalogo.db')
     #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://erickdaniellv:Eridan123@erickdaniellv.mysql.pythonanywhere-services.com/erickdaniellv$Refacajemedb'

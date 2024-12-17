@@ -1,0 +1,43 @@
+<!-- templates/pedidos/finalizar_pedido.html -->
+{% extends "pedidos/base.html" %}
+
+{% block title %}Finalizar Pedido{% endblock %}
+
+{% block content %}
+    <h2 class="text-2xl font-semibold mb-6 text-center">Finalizar Pedido</h2>
+    <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-4 text-center md:text-left">Resumen del Pedido:</h3>
+        <ul class="space-y-4">
+            {% for item in pedido %}
+                <li class="border-b pb-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div class="flex-1">
+                            <p class="font-semibold">{{ item.nombre_producto }} ({{ item.tamano_nombre }})</p>
+                            {% if item.leche_nombre %}
+                                <p class="text-sm text-gray-600">Leche: {{ item.leche_nombre }}</p>
+                            {% endif %}
+                            {% if item.extras %}
+                                <p class="text-sm text-gray-600">Extras: {{ item.extras | join(', ') }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-sm text-green-600 mt-2 sm:mt-0">
+                            ${{ '%.2f' | format(item.precio_total) }}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="mt-4 border-t pt-4 flex justify-between items-center">
+            <p class="text-lg font-semibold">Total:</p>
+            <p class="text-lg font-semibold">${{ '%.2f' | format(total) }}</p>
+        </div>
+    </div>
+    <form method="POST" class="space-y-4">
+        <!-- Si usas Flask-WTF, mantén form.hidden_tag(). De lo contrario, maneja el CSRF token manualmente -->
+        {{ form.hidden_tag() }}
+        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+            {{ form.submit_agregar(class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow") }}
+            {{ form.submit_finalizar(class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow") }}
+        </div>
+    </form>
+{% endblock %}

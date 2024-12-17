@@ -1,24 +1,55 @@
-{% extends 'pedidos/basepedidos.html' %}
-{% block title %}Seleccionar Leche{% endblock %}
-{% block content %}
-<h2 class="text-2xl font-bold mb-4">Seleccionar Leche</h2>
-<form method="POST" class="space-y-6 max-w-md">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<!-- templates/pedidos/seleccionar_leche.html -->
+{% extends "pedidos/base.html" %}
 
-    <div>
-        <h3 class="font-semibold mb-2">Tipo de Leche:</h3>
-        <div class="space-y-2">
-            {% for leche in tipos_de_leche %}
-            <label class="block bg-white p-2 rounded shadow cursor-pointer hover:shadow-lg transition-shadow">
-                <input type="radio" name="leche" value="{{ leche }}" required class="mr-2">
-                {{ leche }}
-            </label>
+{% block title %}Seleccionar Tipo de Leche{% endblock %}
+
+{% block content %}
+    <h2 class="text-2xl font-semibold mb-6 text-center">Selecciona el Tipo de Leche para "{{ producto.nombre_producto }}"</h2>
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for value, label in form.leche.choices %}
+                <button type="submit" name="{{ form.leche.name }}" value="{{ value }}" class="flex flex-col items-center bg-gray-50 rounded-lg shadow p-6 cursor-pointer hover:bg-gray-100 border-2 border-transparent transition-colors duration-300">
+                    <!-- Icono representativo del tipo de leche -->
+                    {% if label == 'Entera' %}
+                        <!-- SVG para leche entera -->
+                        <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                            <path d="M20 54h24v-4H20v4z"/>
+                            <path d="M22 54c-1.1 0-2-.9-2-2V12c0-1.1.9-2 2-2h20l6 6v34c0 1.1-.9 2-2 2H22zM42 14H22v34h20V14z"/>
+                        </svg>
+                    {% elif label == 'Desnatada' %}
+                        <!-- SVG para leche desnatada -->
+                        <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                            <path d="M18 54h28v-4H18v4z"/>
+                            <path d="M20 54c-1.1 0-2-.9-2-2V10c0-1.1.9-2 2-2h24l8 8v30c0 1.1-.9 2-2 2H20zM46 12H20v30h26V12z"/>
+                        </svg>
+                    {% elif label == 'Soja' %}
+                        <!-- SVG para leche de soja -->
+                        <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                            <path d="M16 54h32v-4H16v4z"/>
+                            <path d="M18 54c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h28l10 10v40c0 1.1-.9 2-2 2H18zM50 10H18v40h30V10z"/>
+                        </svg>
+                    {% elif label == 'Almendra' %}
+                        <!-- SVG para leche de almendra -->
+                        <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                            <path d="M14 54h36v-4H14v4z"/>
+                            <path d="M16 54c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h32l12 12v46c0 1.1-.9 2-2 2H16zM52 4H16v46h30V4z"/>
+                        </svg>
+                    {% else %}
+                        <!-- Icono por defecto -->
+                        <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                            <circle cx="32" cy="32" r="30" stroke-width="4" stroke="currentColor" fill="none"/>
+                        </svg>
+                    {% endif %}
+                    <span class="text-lg font-medium">{{ label }}</span>
+                </button>
             {% endfor %}
         </div>
+        {% for error in form.leche.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+        {% endfor %}
+    </form>
+    <div class="mt-6 text-center">
+        <a href="{{ url_for('listar_productos') }}" class="text-blue-500 hover:underline">Volver a Productos</a>
     </div>
-
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
-        Siguiente (Elegir Extras)
-    </button>
-</form>
 {% endblock %}

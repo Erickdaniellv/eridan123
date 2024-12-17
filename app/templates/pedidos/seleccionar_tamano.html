@@ -1,17 +1,55 @@
-{% extends 'pedidos/basepedidos.html' %}
+<!-- templates/pedidos/seleccionar_tamano.html -->
+{% extends "pedidos/base.html" %}
 
 {% block title %}Seleccionar Tamaño{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-4">Seleccionar Tamaño para: {{ producto.nombre }}</h2>
-<form method="POST" class="space-y-4 max-w-md">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    {% for t in tamanos %}
-    <label class="block bg-white p-4 rounded shadow cursor-pointer hover:shadow-lg transition-shadow">
-        <input type="radio" name="tamano_id" value="{{ t.id }}" class="mr-2" required>
-        {{ t.nombre }} (+${{ t.precio_extra }})
-    </label>
-    {% endfor %}
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">Continuar</button>
-</form>
+    <h2 class="text-2xl font-semibold mb-6 text-center">Selecciona el Tamaño para "{{ producto.nombre }}"</h2>
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for value, label in form.tamano.choices %}
+                <button type="submit" name="{{ form.tamano.name }}" value="{{ value }}" class="flex flex-col items-center bg-gray-50 rounded-lg shadow p-6 cursor-pointer hover:bg-gray-100 border-2 border-transparent transition-colors duration-300">
+                    <!-- Icono representativo del tamaño -->
+                    {% if label == 'Mini' %}
+                    <!-- SVG detallado para vaso Mini -->
+                    <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                        <path d="M16 54h32v-4H16v4zM20 54c-1.1 0-2-.9-2-2V10c0-1.1.9-2 2-2h24l8 8v34c0 1.1-.9 2-2 2H20zM42 12H20v34h22V12z"/>
+                        <path d="M24 14h16v2H24v-2zm0 4h16v2H24v-2z"/>
+                    </svg>
+                {% elif label == 'Chico' %}
+                    <!-- SVG detallado para vaso Chico -->
+                    <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                        <path d="M18 54h28v-4H18v4zM22 54c-1.1 0-2-.9-2-2V14c0-1.1.9-2 2-2h24l8 8v30c0 1.1-.9 2-2 2H22zM46 16H22v30h24V16z"/>
+                        <path d="M26 18h12v2H26v-2zm0 4h12v2H26v-2z"/>
+                    </svg>
+                {% elif label == 'Mediano' %}
+                    <!-- SVG detallado para vaso Mediano -->
+                    <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                        <path d="M16 54h32v-4H16v4zM20 54c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h28l8 8v40c0 1.1-.9 2-2 2H20zM50 10H20v40h30V10z"/>
+                        <path d="M24 12h16v2H24v-2zm0 4h16v2H24v-2z"/>
+                    </svg>
+                {% elif label == 'Grande' %}
+                    <!-- SVG detallado para vaso Grande -->
+                    <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                        <path d="M14 54h36v-4H14v4zM18 54c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h32l12 12v46c0 1.1-.9 2-2 2H18zM50 4H18v46h30V4z"/>
+                        <path d="M22 6h28v2H22V6zm0 4h28v2H22V10z"/>
+                    </svg>
+                {% else %}
+                    <!-- Icono por defecto -->
+                    <svg class="w-12 h-12 mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="currentColor">
+                        <circle cx="32" cy="32" r="30" stroke-width="4" stroke="currentColor" fill="none"/>
+                    </svg>
+                {% endif %}
+                                    <span class="text-lg font-medium">{{ label }}</span>
+                </button>
+            {% endfor %}
+        </div>
+        {% for error in form.tamano.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+        {% endfor %}
+    </form>
+    <div class="mt-6 text-center">
+        <a href="{{ url_for('listar_productos') }}" class="text-blue-500 hover:underline">Volver a Productos</a>
+    </div>
 {% endblock %}

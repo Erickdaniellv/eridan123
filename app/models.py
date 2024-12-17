@@ -3,10 +3,40 @@ from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy.types import Enum
 from sqlalchemy.dialects.postgresql import JSON
 import json
+from flask_sqlalchemy import SQLAlchemy
+from decimal import Decimal
+
+
+class Empleado(db.Model):
+    __tablename__ = 'empleados'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    sucursal = db.Column(db.String(50), nullable=False)
+    nombre_puesto = db.Column(db.String(100), nullable=False)
+    nombre_persona = db.Column(db.String(100), nullable=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    nivel_jerarquico = db.Column(db.Integer, nullable=False)
+    supervisor_id = db.Column(db.Integer, db.ForeignKey('empleados.id'), nullable=True)  # Añadido previamente
+    
+    supervisor = db.relationship('Empleado', remote_side=[id], backref='subordinados')
+    
+    def __repr__(self):
+        return f'<Empleado {self.nombre_persona} - {self.nombre_puesto}>'
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sucursal': self.sucursal,
+            'nombre_puesto': self.nombre_puesto,
+            'nombre_persona': self.nombre_persona,
+            'fecha_creacion': self.fecha_creacion.strftime('%Y-%m-%d'),
+            'nivel_jerarquico': self.nivel_jerarquico,
+            'supervisor_id': self.supervisor_id
+        }
 
 
 
@@ -32,8 +62,6 @@ class MiTabla(db.Model):
     saldo_actual = db.Column(db.Numeric, nullable=False)
     tipo_moneda = db.Column(Enum('PESOS', 'DOLARES', name='tipo_moneda_enum'), nullable=False)
 
-
-
 class Usuario(UserMixin, db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
@@ -53,20 +81,16 @@ class Usuario(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-
-
-
 class Producto(db.Model):
     __tablename__ = 'productos'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     descripcion = db.Column(db.Text, nullable=True)
     precio_base = db.Column(db.Float, nullable=False)
-
-
+    opciones = db.relationship('Opcion', backref='producto', lazy=True)
 
 class Tamano(db.Model):
-    __tablename__ = 'tamanos'
+    __tablename__='tamanos'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(20), nullable=False, unique=True)
     precio_extra = db.Column(db.Float, nullable=False)
@@ -79,13 +103,14 @@ class Opcion(db.Model):
     tipo = db.Column(db.String(20), nullable=False)
     precio_extra = db.Column(db.Float, nullable=False)
 
-
 class Pedido(db.Model):
     __tablename__ = 'pedidos'
     id = db.Column(db.Integer, primary_key=True)
     productos_str = db.Column(db.Text, nullable=True)
-    total = db.Column(db.Float, default=0.0)
+    total = db.Column(db.Numeric(10, 2), default=Decimal('0.00'))
     estado = db.Column(db.String(20), default='en curso')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     @property
     def productos(self):
@@ -95,4 +120,7 @@ class Pedido(db.Model):
 
     @productos.setter
     def productos(self, value):
+        for producto in value:
+            if 'extras' not in producto or not isinstance(producto['extras'], list):
+                producto['extras'] = []
         self.productos_str = json.dumps(value)

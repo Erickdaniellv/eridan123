@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Autoservicio de Cafés{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Estilos adicionales para evitar que el contenido principal quede oculto tras la barra inferior -->
+    <style>
+        @media (max-width: 767px) {
+            main {
+                padding-bottom: 200px; /* Altura de la barra inferior */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex min-h-screen">
+        <!-- Sidebar para Pantallas Medianas y Grandes -->
+        <aside class="w-64 bg-white shadow-lg p-6 overflow-y-auto border-r border-gray-200 hidden md:block">
+            <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800">Tu Pedido</h2>
+            {% if session.get('pedido') %}
+                <ul class="space-y-4">
+                    {% for item in session.get('pedido') %}
+                    <li class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4">
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold">{{ item.nombre_producto }} ({{ item.tamano_nombre }})</p>
+                            {% if item.leche_nombre %}
+                                <p class="text-sm text-gray-600">Leche: {{ item.leche_nombre }}</p>
+                            {% endif %}
+                            {% if item.extras %}
+                                <p class="text-sm text-gray-600">Extras: {{ item.extras | join(', ') }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-sm text-green-600 mt-2 sm:mt-0">
+                            ${{ '%.2f' | format(item.precio_total) }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-4 border-t pt-4 flex justify-between font-semibold text-lg">
+                    <span>Total:</span>
+                    <span>${{ '%.2f' | format(session.get('total', 0)) }}</span>
+                </div>
+                <div class="mt-6">
+                    <a href="{{ url_for('finalizar_pedido') }}"
+                       class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center font-semibold py-2 px-4 rounded-lg shadow">
+                        Finalizar Pedido
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center">No has agregado ningún producto al pedido.</p>
+            {% endif %}
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="flex-grow p-8">
+            <div class="bg-white shadow rounded-lg p-6">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Barra Inferior para Pantallas Pequeñas -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 md:hidden">
+        <div class="p-4 overflow-y-auto max-h-64">
+            <h2 class="text-lg font-semibold text-center text-gray-800">Tu Pedido</h2>
+            {% if session.get('pedido') %}
+                <div class="mt-2">
+                    <ul class="space-y-2">
+                        {% for item in session.get('pedido') %}
+                        <li class="flex justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold">{{ item.nombre_producto }} ({{ item.tamano_nombre }})</p>
+                                {% if item.leche_nombre %}
+                                    <p class="text-sm text-gray-600">Leche: {{ item.leche_nombre }}</p>
+                                {% endif %}
+                                {% if item.extras %}
+                                    <p class="text-sm text-gray-600">Extras: {{ item.extras | join(', ') }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="text-sm text-green-600">
+                                ${{ '%.2f' | format(item.precio_total) }}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="mt-2 flex justify-between font-semibold">
+                        <span>Total:</span>
+                        <span>${{ '%.2f' | format(session.get('total', 0)) }}</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('finalizar_pedido') }}"
+                       class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center font-semibold py-2 px-4 rounded-lg shadow">
+                        Finalizar Pedido
+                    </a>
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center">No has agregado ningún producto al pedido.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

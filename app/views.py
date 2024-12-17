@@ -1,8 +1,8 @@
 # C:\Users\Erick Lopez2\Desktop\eccomerce\app\app.py
-from .models import Pedido, Opcion, Producto, Usuario, MiTabla, Tamano
+from .models import Empleado, Pedido, Opcion, Producto, Usuario, MiTabla, Tamano
 from flask import Response, current_app, make_response, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 from . import db, limiter, mail, csrf, cache
-from .forms import OpcionForm, TamanoForm, ProductForm, UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
+from .forms import SeleccionarTamanoForm, SeleccionarLecheForm, SeleccionarExtrasForm, FinalizarPedidoForm, EmpleadoForm, OpcionForm, TamanoForm, ProductForm, UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash  # Asegúrate de importar esto
 from flask_mail import Message
@@ -25,6 +25,9 @@ import jwt
 from functools import wraps
 from . import csrf
 from flask import session
+from .constants import SUCURSALES, JERARQUIA_POSICIONES
+import json
+from decimal import Decimal
 
 
  
@@ -83,230 +86,199 @@ def init_routes(app):
 
 
 
-
-
 #CAFFE menu-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    @app.route('/menu')
-    def menu():
+    @app.route('/productos')
+    def listar_productos():
         productos = Producto.query.all()
+        return render_template('pedidos/productos.html', productos=productos)
 
-        # En este enfoque, no creamos el pedido aquí. Solo lo haremos cuando el usuario seleccione un producto.
-        # Esto evita pedidos vacíos si el usuario no compra.
-        
-        # Si no hay productos, se informa
-        if not productos:
-            flash('No hay productos disponibles en este momento.', 'info')
-        
-        # Intentamos cargar un pedido existente si lo hay
-        pedido_id = session.get('pedido_id')
-        pedido = Pedido.query.get(pedido_id) if pedido_id else None
-
-        return render_template('pedidos/menu.html', productos=productos, pedido=pedido)
-
-
-    @app.route('/seleccionar_tamano/<int:producto_id>', methods=['GET', 'POST'])
+    @app.route('/productos/<int:producto_id>/tamanos', methods=['GET', 'POST'])
     def seleccionar_tamano(producto_id):
-        # Primero, verificamos que el producto exista
-        producto = Producto.query.get(producto_id)
-        if not producto:
-            flash('El producto seleccionado no existe.', 'warning')
-            return redirect(url_for('menu'))
-
-        # Ahora verificamos el pedido en la sesión
-        pedido_id = session.get('pedido_id')
-        if not pedido_id:
-            # Si no hay pedido, lo creamos aquí, ya que el usuario muestra intención de comprar
-            nuevo_pedido = Pedido(total=0.0, estado='en curso')
-            db.session.add(nuevo_pedido)
-            db.session.commit()
-            session['pedido_id'] = nuevo_pedido.id
-            pedido = nuevo_pedido
-        else:
-            pedido = Pedido.query.get(pedido_id)
-            if not pedido:
-                # Si el pedido no existe en la BD (caso raro), creamos uno nuevo
-                nuevo_pedido = Pedido(total=0.0, estado='en curso')
-                db.session.add(nuevo_pedido)
-                db.session.commit()
-                session['pedido_id'] = nuevo_pedido.id
-                pedido = nuevo_pedido
-
+        producto = Producto.query.get_or_404(producto_id)
         tamanos = Tamano.query.all()
-        if not tamanos:
-            flash('No hay tamaños disponibles.', 'info')
-            return redirect(url_for('menu'))
 
-        if request.method == 'POST':
-            tamano_id = request.form.get('tamano_id')
+        if not tamanos:
+            flash('No hay tamaños disponibles para este producto.', 'warning')
+            return redirect(url_for('listar_productos'))
+
+        form = SeleccionarTamanoForm()
+        form.tamano.choices = [(tamano.id, tamano.nombre) for tamano in tamanos]
+
+        logging.info(f"Producto seleccionado: {producto.nombre} (ID: {producto.id})")
+        logging.info(f"Tamaños disponibles: {[tamano.nombre for tamano in tamanos]}")
+
+        if form.validate_on_submit():
+            tamano_id = form.tamano.data
             tamano = Tamano.query.get(tamano_id)
             if not tamano:
-                flash('El tamaño seleccionado no existe.', 'warning')
-                return redirect(url_for('menu'))
+                flash('Tamaño no válido.', 'danger')
+                logging.error(f"Tamaño no encontrado: ID {tamano_id}")
+                return redirect(url_for('seleccionar_tamano', producto_id=producto_id))
+            
+            # Calcular precios con Decimal para mayor precisión
+            precio_base = Decimal(producto.precio_base)
+            precio_extra_tamano = Decimal(tamano.precio_extra)
+            precio_total = precio_base + precio_extra_tamano
 
-            producto_con_tamano = {
-                "producto": producto.nombre,
-                "tamano": tamano.nombre,
-                "precio_base": producto.precio_base,
-                "precio_tamano": tamano.precio_extra,
-                "leche": None,
-                "extras": [],
-                "total": producto.precio_base + tamano.precio_extra
-            }
+            # Guardar en la sesión
+            pedido = session.get('pedido', [])
+            pedido.append({
+                'producto_id': producto.id,
+                'nombre_producto': producto.nombre,
+                'tamano_id': tamano.id,
+                'tamano_nombre': tamano.nombre,
+                'precio_base': float(precio_base),
+                'precio_extra_tamano': float(precio_extra_tamano),
+                'precio_total': float(precio_total),
+                'leche_id': None,
+                'leche_nombre': None,
+                'extras': [],
+                'precio_extras': 0.0
+            })
+            session['pedido'] = pedido
 
-            productos = pedido.productos or []
-            productos.append(producto_con_tamano)
-            pedido.productos = productos
-            pedido.total += producto_con_tamano["total"]
-            db.session.add(pedido)
-            db.session.commit()
-            return redirect(url_for('seleccionar_leche', producto_id=producto_id))
+            # Actualizar el total del pedido
+            total_actual = Decimal(session.get('total', 0))
+            total_actual += precio_total
+            session['total'] = float(total_actual)
+            session.modified = True
 
-        return render_template('pedidos/seleccionar_tamano.html', producto=producto, tamanos=tamanos, pedido=pedido)
+            logging.info(f"Pedido actualizado: Total = {session['total']}")
+            flash('Tamaño seleccionado. Ahora selecciona el tipo de leche.', 'success')
+            return redirect(url_for('seleccionar_leche', producto_index=len(pedido)-1))
 
-
-    @app.route('/seleccionar_leche/<int:producto_id>', methods=['GET', 'POST'])
-    def seleccionar_leche(producto_id):
-        pedido_id = session.get('pedido_id')
-        if not pedido_id:
-            flash('No tienes un pedido en curso.', 'warning')
-            return redirect(url_for('menu'))
-
-        pedido = Pedido.query.get(pedido_id)
-        if not pedido or not pedido.productos:
-            flash('No tienes productos en tu pedido.', 'warning')
-            return redirect(url_for('menu'))
-
-        producto = Producto.query.get(producto_id)
-        if not producto:
-            flash('El producto no existe.', 'warning')
-            return redirect(url_for('menu'))
-
-        producto_actual = pedido.productos[-1]
-        tipos_de_leche = ['Entera', 'Deslactosada', 'Almendra', 'Soya']
-
-        if request.method == 'POST':
-            leche_seleccionada = request.form.get('leche')
-            if not leche_seleccionada:
-                flash('Debes seleccionar un tipo de leche.', 'warning')
-                return redirect(url_for('seleccionar_leche', producto_id=producto_id))
-
-            # Actualizar el producto con la leche elegida
-            producto_actual["leche"] = leche_seleccionada
-
-            # Reasignar y guardar
-            productos = pedido.productos
-            productos[-1] = producto_actual
-            pedido.productos = productos
-
-            db.session.add(pedido)
-            db.session.commit()
-
-            # Ahora pasamos a la selección de extras
-            return redirect(url_for('seleccionar_extras', producto_id=producto_id))
-
-        return render_template('pedidos/seleccionar_leche.html', pedido=pedido, tipos_de_leche=tipos_de_leche)
+        return render_template('pedidos/seleccionar_tamano.html', producto=producto, form=form)
 
 
-    @app.route('/seleccionar_extras/<int:producto_id>', methods=['GET', 'POST'])
-    def seleccionar_extras(producto_id):
-        pedido_id = session.get('pedido_id')
-        if not pedido_id:
-            flash('No tienes un pedido en curso.', 'warning')
-            return redirect(url_for('menu'))
+    @app.route('/seleccionar_leche/<int:producto_index>', methods=['GET', 'POST'])
+    def seleccionar_leche(producto_index):
+        pedido = session.get('pedido', [])
+        if producto_index >= len(pedido):
+            flash('Producto no encontrado en el pedido.', 'danger')
+            return redirect(url_for('listar_productos'))
 
-        pedido = Pedido.query.get(pedido_id)
-        if not pedido or not pedido.productos:
-            flash('No tienes productos en tu pedido.', 'warning')
-            return redirect(url_for('menu'))
+        producto = pedido[producto_index]
+        opciones_leche = Opcion.query.filter_by(tipo='Leche').all()
 
-        producto = Producto.query.get(producto_id)
-        if not producto:
-            flash('El producto no existe.', 'warning')
-            return redirect(url_for('menu'))
+        form = SeleccionarLecheForm()
+        form.leche.choices = [(leche.id, f"{leche.nombre} (+${leche.precio_extra})") for leche in opciones_leche]
 
-        producto_actual = pedido.productos[-1]
-        extras_disponibles = ['Extra shot', 'Chocolate', 'Caramelo']
+        if form.validate_on_submit():
+            leche_id = form.leche.data
+            leche = Opcion.query.get(leche_id)
+            if not leche:
+                flash('Tipo de leche no válido.', 'danger')
+                return redirect(url_for('seleccionar_leche', producto_index=producto_index))
+            
+            # Actualizar el pedido en la sesión
+            pedido[producto_index]['leche_id'] = leche.id
+            pedido[producto_index]['leche_nombre'] = leche.nombre
+            pedido[producto_index]['precio_extra_leche'] = float(leche.precio_extra)
+            pedido[producto_index]['precio_total'] += float(leche.precio_extra)
+            session['total'] += float(leche.precio_extra)
+            session.modified = True
 
-        if request.method == 'POST':
-            extras = request.form.getlist('extras')
-            costo_extra = len(extras) * 5.0
+            flash('Tipo de leche seleccionado. Ahora puedes añadir extras.', 'success')
+            return redirect(url_for('seleccionar_extras', producto_index=producto_index))
 
-            # Actualizar extras y total
-            producto_actual["extras"] = extras
-            producto_actual["total"] += costo_extra
-
-            # Reasignar y guardar
-            productos = pedido.productos
-            productos[-1] = producto_actual
-            pedido.productos = productos
-            pedido.total += costo_extra
-
-            db.session.add(pedido)
-            db.session.commit()
-
-            if 'continuar' in request.form:
-                return redirect(url_for('menu'))
-            else:
-                return redirect(url_for('resumen_pedido'))
-
-        return render_template('pedidos/seleccionar_extras.html', pedido=pedido, extras_disponibles=extras_disponibles)
+        return render_template('pedidos/seleccionar_leche.html', form=form, producto=producto)
 
 
-    @app.route('/resumen_pedido', methods=['GET', 'POST'])
-    def resumen_pedido():
-        pedido_id = session.get('pedido_id')
-        if not pedido_id:
-            flash('No tienes un pedido en curso.', 'warning')
-            return redirect(url_for('menu'))
 
-        pedido = Pedido.query.get(pedido_id)
-        if not pedido or not pedido.productos:
-            flash('Tu pedido está vacío.', 'info')
-            return redirect(url_for('menu'))
+    @app.route('/seleccionar_extras/<int:producto_index>', methods=['GET', 'POST'])
+    def seleccionar_extras(producto_index):
+        pedido = session.get('pedido', [])
+        if producto_index >= len(pedido):
+            flash('Producto no encontrado en el pedido.', 'danger')
+            return redirect(url_for('listar_productos'))
+
+        producto = pedido[producto_index]
+        logging.info(f"Seleccionando extras para el producto: {producto['nombre_producto']} (Index: {producto_index})")
+
+        # Obtener extras únicos disponibles
+        extras_disponibles = Opcion.query.filter(Opcion.tipo != 'Leche').distinct(Opcion.nombre, Opcion.precio_extra).all()
+        logging.info(f"Extras únicos disponibles: {len(extras_disponibles)}")
+
+        # Construir un diccionario para las cantidades iniciales
+        cantidades = {str(extra.id): 0 for extra in extras_disponibles}
 
         if request.method == 'POST':
-            pedido.estado = "finalizado"
-            db.session.commit()
-            session.pop('pedido_id', None)
-            flash('Pedido realizado con éxito', 'success')
-            return redirect(url_for('menu'))
+            total_extras = Decimal('0.00')
+            nombres_extras = []
 
-        return render_template('pedidos/resumen_pedido.html', pedido=pedido)
+            # Procesar cantidades enviadas desde el formulario
+            for extra in extras_disponibles:
+                cantidad = int(request.form.get(f'quantity-{extra.id}', 0))
+                if cantidad > 0:
+                    nombres_extras.append(f"{cantidad}x {extra.nombre}")
+                    total_extras += Decimal(extra.precio_extra) * cantidad
+                    logging.info(f"Extra agregado: {cantidad}x {extra.nombre} (+${extra.precio_extra})")
+
+            # Actualizar el producto seleccionado
+            producto['extras'] = nombres_extras
+            producto['precio_extras'] = float(total_extras)
+            producto['precio_total'] += float(total_extras)
+
+            # Actualizar el pedido en la sesión
+            pedido[producto_index] = producto
+            session['pedido'] = pedido
+            session['total'] = float(Decimal(session.get('total', 0)) + total_extras)
+            session.modified = True
+
+            flash('Extras seleccionados con éxito.', 'success')
+            return redirect(url_for('finalizar_pedido'))
+
+        return render_template(
+            'pedidos/seleccionar_extras.html',
+            extras=extras_disponibles,
+            cantidades=cantidades,
+            producto=producto
+        )
 
 
 
-    @app.route('/eliminar_producto_pedido/<int:indice>', methods=['POST'])
-    def eliminar_producto_pedido(indice):
-        pedido_id = session.get('pedido_id')
-        if not pedido_id:
-            return redirect(url_for('menu'))
 
+
+
+    @app.route('/finalizar_pedido', methods=['GET', 'POST'])
+    def finalizar_pedido():
+        pedido = session.get('pedido', [])
+        total = session.get('total', 0.0)
+
+        if not pedido:
+            flash('No hay productos en el pedido para finalizar.', 'warning')
+            return redirect(url_for('listar_productos'))
+
+        form = FinalizarPedidoForm()
+
+        if form.validate_on_submit():
+            if form.submit_agregar.data:
+                # Redirigir al listado de productos para añadir otro producto
+                return redirect(url_for('listar_productos'))
+            elif form.submit_finalizar.data:
+                # Guardar el pedido en la base de datos
+                nuevo_pedido = Pedido(
+                    productos=pedido,  # Pasar la lista directamente
+                    total=Decimal(total),
+                    estado='pendiente'
+                )
+                db.session.add(nuevo_pedido)
+                db.session.commit()
+
+                # Limpiar la sesión
+                session.pop('pedido', None)
+                session.pop('total', None)
+
+                flash(f'Pedido finalizado con éxito. ID del pedido: {nuevo_pedido.id}', 'success')
+                return redirect(url_for('pedido_finalizado', pedido_id=nuevo_pedido.id))
+
+        return render_template('pedidos/finalizar_pedido.html', pedido=pedido, total=total, form=form)
+
+    @app.route('/pedido_finalizado/<int:pedido_id>')
+    def pedido_finalizado(pedido_id):
         pedido = Pedido.query.get_or_404(pedido_id)
-        productos = pedido.productos  # Esto obtiene la lista actual
-        
-        if 0 <= indice < len(productos):
-            # Remover el producto de la lista
-            productos.pop(indice)
-            pedido.productos = productos  # Reasignar para que se actualice productos_str
-            # Recalcular el total
-            nuevo_total = sum(p["total"] for p in productos)
-            pedido.total = nuevo_total
-
-            db.session.add(pedido)
-            db.session.commit()
-
-        return redirect(url_for('menu'))
-
-
-
-
-
-
-
-
-
-
+        return render_template('pedidos/pedido_finalizado.html', pedido=pedido)
 
 
 #CAFFE dasbhoard-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -543,7 +515,62 @@ def init_routes(app):
 
 
 
+#RH----------------------------------------------------------------------------------------------------------------------
+    @app.route('/empleados', methods=['GET'])
+    def lista_empleados():
+        empleados = Empleado.query.all()
+        return render_template('lista_empleados.html', empleados=empleados)
 
+
+    @app.route('/nuevo_empleado', methods=['GET', 'POST'])
+    def nuevo_empleado():
+        form = EmpleadoForm()
+        
+        # Asignar dinámicamente las opciones de supervisores
+        supervisores = Empleado.query.order_by(Empleado.nombre_persona).all()
+        form.supervisor_id.choices = [('', 'Sin Supervisor')] + [(emp.id, emp.nombre_persona) for emp in supervisores]
+        
+        if form.validate_on_submit():
+            posicion = form.nombre_puesto.data
+            nivel = JERARQUIA_POSICIONES.get(posicion, 99)
+            supervisor_id = form.supervisor_id.data if form.supervisor_id.data else None
+            
+            empleado = Empleado(
+                sucursal=form.sucursal.data,
+                nombre_puesto=posicion,
+                nombre_persona=form.nombre_persona.data,
+                nivel_jerarquico=nivel,
+                supervisor_id=supervisor_id
+            )
+            db.session.add(empleado)
+            db.session.commit()
+            flash('Empleado creado exitosamente.', 'success')
+            return redirect(url_for('nuevo_empleado'))
+        
+        return render_template('nuevo_empleado.html', form=form)
+
+    @app.route('/organigrama', methods=['GET'])
+    def organigrama():
+        sucursal = request.args.get('sucursal', None)
+        if sucursal:
+            empleados = Empleado.query.filter_by(sucursal=sucursal).all()
+        else:
+            empleados = Empleado.query.all()
+        
+        sucursales = SUCURSALES
+        
+        # Convertir empleados a diccionarios
+        empleados_serializados = [emp.to_dict() for emp in empleados]
+        
+        # Debugging: imprimir los empleados serializados en la consola
+        print(empleados_serializados)
+        
+        return render_template(
+            'organigrama.html',
+            empleados=empleados_serializados,  # Pasar los empleados serializados
+            sucursales=sucursales,
+            sucursal_seleccionada=sucursal
+        )
 
 
 

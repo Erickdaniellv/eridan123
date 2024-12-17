@@ -1,6 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import FloatField, StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField, SelectField
+from wtforms import  RadioField, SelectMultipleField, FloatField, StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import NumberRange, DataRequired, Email, EqualTo, Length, Optional, Regexp  # Importa Regexp correctamente
+from .constants import POSICIONES, SUCURSALES, JERARQUIA_POSICIONES  # Importa la lista de posiciones
+from wtforms.widgets import ListWidget, CheckboxInput
+
+
 
 
 class RegistrationForm(FlaskForm):
@@ -46,7 +50,6 @@ class AdminUserForm(FlaskForm):
         validators=[Optional()]
     )
     submit = SubmitField('Guardar')
-
 
 class UserProfileForm(FlaskForm):
     rfc = StringField('RFC', validators=[Optional()])
@@ -112,6 +115,12 @@ class ProductForm(FlaskForm):
 
 
 class TamanoForm(FlaskForm):
+    tamano = SelectField(
+        'Selecciona el Tamaño',
+        choices=[],  # Las opciones se llenarán dinámicamente en la ruta
+        validators=[DataRequired(message="El nombre del tamaño es obligatorio.")],
+        render_kw={"class": "mt-1 block w-full p-2 border border-gray-300 rounded-lg"}
+    )
     nombre = SelectField(
         'Nombre del Tamaño',
         choices=[('Mini', 'Mini'), ('Chico', 'Chico'), ('Mediano', 'Mediano'), ('Grande', 'Grande')],
@@ -123,12 +132,14 @@ class TamanoForm(FlaskForm):
         validators=[DataRequired(message="El precio extra es obligatorio."), NumberRange(min=0)],
         render_kw={"class": "mt-1 block w-full p-2 border border-gray-300 rounded-lg"}
     )
-    submit = SubmitField(
+    submit_guardar = SubmitField(
         'Guardar Tamaño',
         render_kw={"class": "bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"}
     )
-
-
+    submit_agregar = SubmitField(
+        'Agregar al Pedido',
+        render_kw={"class": "bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"}
+    )
 
 class OpcionForm(FlaskForm):
     tipo = SelectField(
@@ -151,4 +162,78 @@ class OpcionForm(FlaskForm):
     submit = SubmitField(
         'Guardar',
         render_kw={"class": "bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"}
+    )
+
+
+
+class SeleccionarTamanoForm(FlaskForm):
+    tamano = RadioField(
+        'Selecciona el Tamaño',
+        validators=[DataRequired(message="Seleccionar un tamaño es obligatorio.")],
+        choices=[],
+        render_kw={"class": "mt-1 block w-full p-2 border border-gray-300 rounded-lg"}
+    )
+    submit = SubmitField(
+        'Seleccionar Tamaño',
+        render_kw={"class": "bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow"}
+    )
+
+class SeleccionarLecheForm(FlaskForm):
+    leche = RadioField('Selecciona el Tipo de Leche', validators=[DataRequired()], choices=[])
+    submit = SubmitField('Siguiente')
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
+
+
+
+class SeleccionarExtrasForm(FlaskForm):
+    extras = SelectMultipleField('Selecciona los Extras', validators=[Optional()], coerce=int)
+    submit = SubmitField('Añadir al Pedido')
+
+class FinalizarPedidoForm(FlaskForm):
+    submit_agregar = SubmitField('Añadir Otro Producto')
+    submit_finalizar = SubmitField('Finalizar Pedido')
+
+
+
+
+
+
+
+
+class EmpleadoForm(FlaskForm):
+    sucursal = SelectField(
+        'Sucursal',
+        choices=[(sucursal, sucursal) for sucursal in SUCURSALES],
+        validators=[DataRequired(message="La sucursal es requerida.")],
+        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
+    )
+    nombre_puesto = SelectField(
+        'Nombre del Puesto',
+        choices=[(puesto, puesto) for puesto in POSICIONES],
+        validators=[
+            DataRequired(message="El nombre del puesto es requerido."),
+            Length(max=100, message="El nombre del puesto no puede exceder 100 caracteres.")
+        ],
+        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
+    )
+    nombre_persona = StringField(
+        'Nombre de la Persona',
+        validators=[
+            DataRequired(message="El nombre de la persona es requerido."),
+            Length(max=100, message="El nombre de la persona no puede exceder 100 caracteres.")
+        ],
+        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
+    )
+    supervisor_id = SelectField(
+        'Supervisor',
+        choices=[],  # Inicialmente vacío, se llenará en la vista
+        validators=[Optional()],
+        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
+    )
+    submit = SubmitField(
+        'Guardar Empleado',
+        render_kw={"class": "w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"}
     )
