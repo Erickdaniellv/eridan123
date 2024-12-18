@@ -2,7 +2,7 @@
 from .models import Empleado, Pedido, Opcion, Producto, Usuario, MiTabla, Tamano
 from flask import Response, current_app, make_response, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 from . import db, limiter, mail, csrf, cache
-from .forms import SeleccionarTamanoForm, SeleccionarLecheForm, SeleccionarExtrasForm, FinalizarPedidoForm, EmpleadoForm, OpcionForm, TamanoForm, ProductForm, UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
+from .forms import ActualizarEstadoForm, SurtirPedidoForm, SeleccionarTamanoForm, SeleccionarLecheForm, SeleccionarExtrasForm, FinalizarPedidoForm, EmpleadoForm, OpcionForm, TamanoForm, ProductForm, UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash  # Asegúrate de importar esto
 from flask_mail import Message
@@ -88,10 +88,15 @@ def init_routes(app):
 
 #CAFFE menu-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+    @app.route('/inicio')
+    @app.route('/inicio')
+    def inicio():
+        return render_template('pedidos/menu/inicio.html')
+    
     @app.route('/productos')
     def listar_productos():
         productos = Producto.query.all()
-        return render_template('pedidos/productos.html', productos=productos)
+        return render_template('pedidos/menu/productos.html', productos=productos)
 
     @app.route('/productos/<int:producto_id>/tamanos', methods=['GET', 'POST'])
     def seleccionar_tamano(producto_id):
@@ -148,7 +153,7 @@ def init_routes(app):
             flash('Tamaño seleccionado. Ahora selecciona el tipo de leche.', 'success')
             return redirect(url_for('seleccionar_leche', producto_index=len(pedido)-1))
 
-        return render_template('pedidos/seleccionar_tamano.html', producto=producto, form=form)
+        return render_template('pedidos/menu/seleccionar_tamano.html', producto=producto, form=form)
 
 
     @app.route('/seleccionar_leche/<int:producto_index>', methods=['GET', 'POST'])
@@ -182,7 +187,7 @@ def init_routes(app):
             flash('Tipo de leche seleccionado. Ahora puedes añadir extras.', 'success')
             return redirect(url_for('seleccionar_extras', producto_index=producto_index))
 
-        return render_template('pedidos/seleccionar_leche.html', form=form, producto=producto)
+        return render_template('pedidos/menu/seleccionar_leche.html', form=form, producto=producto)
 
 
 
@@ -230,7 +235,7 @@ def init_routes(app):
             return redirect(url_for('finalizar_pedido'))
 
         return render_template(
-            'pedidos/seleccionar_extras.html',
+            'pedidos/menu/seleccionar_extras.html',
             extras=extras_disponibles,
             cantidades=cantidades,
             producto=producto
@@ -273,12 +278,172 @@ def init_routes(app):
                 flash(f'Pedido finalizado con éxito. ID del pedido: {nuevo_pedido.id}', 'success')
                 return redirect(url_for('pedido_finalizado', pedido_id=nuevo_pedido.id))
 
-        return render_template('pedidos/finalizar_pedido.html', pedido=pedido, total=total, form=form)
+        return render_template('pedidos/menu/finalizar_pedido.html', pedido=pedido, total=total, form=form)
 
     @app.route('/pedido_finalizado/<int:pedido_id>')
     def pedido_finalizado(pedido_id):
         pedido = Pedido.query.get_or_404(pedido_id)
-        return render_template('pedidos/pedido_finalizado.html', pedido=pedido)
+        return render_template('pedidos/menu/pedido_finalizado.html', pedido=pedido)
+    
+
+#CAFFE Surtir caffe-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    @app.route('/surtir_pedidos', methods=['GET', 'POST'])
+    def surtir_pedidos():
+        pedidos = Pedido.query.filter_by(estado='pendiente').all()  # Mostrar solo pedidos pendientes
+        form = SurtirPedidoForm()
+
+        if form.validate_on_submit():
+            pedido_id = form.pedido_id.data
+            logging.info(f"Pedido ID recibido: {pedido_id}")  # Log para verificar el ID
+            if pedido_id:
+                try:
+                    pedido = Pedido.query.get(int(pedido_id))
+                    if pedido and pedido.estado == 'pendiente':
+                        pedido.estado = 'en curso'
+                        db.session.commit()
+                        flash(f'El pedido {pedido.id} ha sido marcado como "En Curso".', 'success')
+                        logging.info(f"Pedido {pedido.id} actualizado a 'en curso'")
+                    else:
+                        flash('Pedido no encontrado o ya ha sido procesado.', 'warning')
+                        logging.warning(f"Pedido {pedido_id} no encontrado o no está pendiente")
+                except ValueError:
+                    flash('ID de pedido inválido.', 'danger')
+                    logging.error(f"ID de pedido inválido: {pedido_id}")
+            else:
+                flash('ID de pedido no proporcionado.', 'danger')
+                logging.error("ID de pedido no proporcionado en el formulario")
+
+            return redirect(url_for('surtir_pedidos'))
+
+        return render_template('pedidos/surtir/surtir_pedidos.html', pedidos=pedidos, form=form)
+
+
+    @app.route('/surtir_pedido/<int:pedido_id>', methods=['POST'])
+    def surtir_pedido(pedido_id):
+        logging.info(f"Intentando surtir el pedido ID: {pedido_id}")
+        pedido = Pedido.query.get_or_404(pedido_id)
+        if pedido.estado == 'pendiente':
+            pedido.estado = 'en curso'
+            try:
+                db.session.commit()
+                flash(f'El pedido {pedido.id} ha sido marcado como "En Curso".', 'success')
+                logging.info(f"Pedido {pedido.id} actualizado a 'en curso'")
+            except Exception as e:
+                db.session.rollback()
+                flash('Ocurrió un error al actualizar el pedido.', 'danger')
+                logging.error(f"Error al actualizar el pedido {pedido.id}: {e}")
+        else:
+            flash('Pedido no encontrado o ya ha sido procesado.', 'warning')
+            logging.warning(f"Pedido {pedido.id} no está en estado 'pendiente'")
+
+        return redirect(url_for('surtir_pedidos'))
+
+
+
+
+    @app.route('/pedidos/en_curso', methods=['GET', 'POST'])
+    def pedidos_en_curso():
+        pedidos = Pedido.query.filter_by(estado='en curso').all()
+        form = SurtirPedidoForm()
+
+        if form.validate_on_submit():
+            pedido_id = form.pedido_id.data
+            logging.info(f"Pedido en curso ID recibido: {pedido_id}")
+            if pedido_id:
+                try:
+                    pedido = Pedido.query.get(int(pedido_id))
+                    if pedido and pedido.estado == 'en curso':
+                        pedido.estado = 'concluido'
+                        db.session.commit()
+                        flash(f'El pedido {pedido.id} ha sido marcado como "Concluido".', 'success')
+                        logging.info(f"Pedido {pedido.id} actualizado a 'concluido'")
+                    else:
+                        flash('Pedido no encontrado o ya ha sido procesado.', 'warning')
+                        logging.warning(f"Pedido {pedido_id} no encontrado o no está en curso")
+                except ValueError:
+                    flash('ID de pedido inválido.', 'danger')
+                    logging.error(f"ID de pedido inválido: {pedido_id}")
+            else:
+                flash('ID de pedido no proporcionado.', 'danger')
+                logging.error("ID de pedido no proporcionado en el formulario")
+
+            return redirect(url_for('pedidos_en_curso'))
+
+        return render_template('pedidos/surtir/en_curso.html', pedidos=pedidos, form=form)
+    
+
+
+
+    @app.route('/concluir_pedido/<int:pedido_id>', methods=['POST'])
+    def concluir_pedido(pedido_id):
+        form = ActualizarEstadoForm()
+        if form.validate_on_submit():
+            nuevo_estado = form.estado.data
+            logging.info(f"Intentando concluir el pedido ID: {pedido_id} a estado: {nuevo_estado}")
+            
+            pedido = Pedido.query.get_or_404(pedido_id)
+            
+            if nuevo_estado == 'concluido':
+                pedido.estado = nuevo_estado
+                try:
+                    pedido.updated_at = datetime.utcnow()
+                    db.session.commit()
+                    flash(f'El pedido {pedido.id} ha sido marcado como "Concluido".', 'success')
+                    logging.info(f"Pedido {pedido.id} actualizado a '{nuevo_estado}'")
+                except Exception as e:
+                    db.session.rollback()
+                    flash('Ocurrió un error al concluir el pedido.', 'danger')
+                    logging.error(f"Error al concluir el pedido {pedido.id}: {e}")
+            else:
+                flash('Estado inválido proporcionado.', 'warning')
+                logging.warning(f"Estado inválido '{nuevo_estado}' para el pedido {pedido_id}")
+            
+            return redirect(url_for('pedidos_en_curso'))
+        else:
+            flash('Formulario inválido o faltan datos.', 'danger')
+            logging.error(f"Formulario inválido para concluir el pedido {pedido_id}")
+            return redirect(url_for('pedidos_en_curso'))
+
+
+
+
+    @app.route('/pedidos/concluidos')
+    def pedidos_concluidos():
+        pedidos = Pedido.query.filter_by(estado='concluido').all()
+        return render_template('pedidos/surtir/concluidos.html', pedidos=pedidos)
+
+
+    @app.route('/actualizar_estado/<int:pedido_id>', methods=['POST'])
+    def actualizar_estado(pedido_id):
+        form = ActualizarEstadoForm()
+        if form.validate_on_submit():
+            nuevo_estado = form.estado.data
+            logging.info(f"Intentando actualizar el pedido ID: {pedido_id} a estado: {nuevo_estado}")
+            
+            pedido = Pedido.query.get_or_404(pedido_id)
+            
+            if nuevo_estado in ['en curso', 'concluido']:
+                pedido.estado = nuevo_estado
+                try:
+                    pedido.updated_at = datetime.utcnow()
+                    db.session.commit()
+                    flash(f'El pedido {pedido.id} ha sido marcado como "{nuevo_estado}".', 'success')
+                    logging.info(f"Pedido {pedido.id} actualizado a '{nuevo_estado}'")
+                except Exception as e:
+                    db.session.rollback()
+                    flash('Ocurrió un error al actualizar el pedido.', 'danger')
+                    logging.error(f"Error al actualizar el pedido {pedido.id}: {e}")
+            else:
+                flash('Estado inválido proporcionado.', 'warning')
+                logging.warning(f"Estado inválido '{nuevo_estado}' para el pedido {pedido_id}")
+            
+            return redirect(request.referrer or url_for('surtir_pedidos'))
+        else:
+            flash('Formulario inválido o faltan datos.', 'danger')
+            logging.error(f"Formulario inválido para actualizar el pedido {pedido_id}")
+            return redirect(request.referrer or url_for('surtir_pedidos'))
 
 
 #CAFFE dasbhoard-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Consola de Ventas{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Menú Superior -->
+    <header class="bg-gray-800 text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="text-2xl font-bold tracking-wide">
+                <a href="{{ url_for('profile') }}">☕ Cafetería Admin</a>
+            </div>
+
+            <!-- Opciones del Menú -->
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="{{ url_for('listar_productos') }}">🏠 Menu</a></li>
+                    <li><a href="{{ url_for('surtir_pedidos') }}">📦 Pendientes</a></li>
+                    <li><a href="{{ url_for('pedidos_en_curso') }}">⚙️ En Curso</a></li>
+                    <li><a href="{{ url_for('pedidos_concluidos') }}">✅ Concluidos</a></li>
+                </ul>
+                        </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="container mx-auto px-4 py-6">
+        {% block content %}
+        <!-- Aquí va el contenido de cada página -->
+        {% endblock %}
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>&copy; {{ current_year }} Consola de Ventas | Todos los derechos reservados</p>
+    </footer>
+
+</body>
+</html>

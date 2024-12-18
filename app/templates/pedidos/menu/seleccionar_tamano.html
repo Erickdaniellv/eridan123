@@ -1,0 +1,45 @@
+{% extends "pedidos/menu/base.html" %}
+
+{% block title %}Seleccionar Tamaño{% endblock %}
+
+{% block content %}
+<!-- Contenedor Principal -->
+<div class="w-full h-screen px-6 py-6 flex flex-col">
+    <!-- Título -->
+    <h2 class="text-5xl font-bold mb-8 text-center">Selecciona el Tamaño para "{{ producto.nombre }}"</h2>
+
+    <!-- Grid de Tamaños -->
+    <form method="POST" class="flex-grow">
+        {{ form.hidden_tag() }}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for value, label in form.tamano.choices %}
+                <button type="submit" name="{{ form.tamano.name }}" value="{{ value }}"
+                        class="flex flex-col justify-center items-center bg-gray-50 rounded-lg shadow-lg p-8 h-auto hover:bg-gray-100 border-2 border-transparent transition-all duration-300 transform hover:scale-105">
+                    <!-- Icono -->
+                    {% if label == 'Mini' %}
+                        <img src="{{ url_for('static', filename='SVG/icon-08.png') }}" 
+                             alt="Tamaño {{ label }}" 
+                             class="w-16 h-16 mb-4">
+                    {% elif label == 'Chico' %}
+                        <img src="{{ url_for('static', filename='SVG/icon-08.png') }}" 
+                             alt="Tamaño {{ label }}" 
+                             class="w-20 h-20 mb-4">
+                    {% elif label == 'Mediano' %}
+                        <img src="{{ url_for('static', filename='SVG/icon-08.png') }}" 
+                             alt="Tamaño {{ label }}" 
+                             class="w-24 h-24 mb-4">
+                    {% elif label == 'Grande' %}
+                        <img src="{{ url_for('static', filename='SVG/icon-08.png') }}" 
+                             alt="Tamaño {{ label }}" 
+                             class="w-28 h-28 mb-4">
+                    {% endif %}
+                    <!-- Etiqueta del tamaño -->
+                    <span class="text-2xl font-semibold text-gray-800">{{ label }}</span>
+                </button>
+            {% endfor %}
+        </div>
+    </form>
+
+    <!-- Botón de Regreso -->
+</div>
+{% endblock %}

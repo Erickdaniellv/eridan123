@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import  RadioField, SelectMultipleField, FloatField, StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField, SelectField
+from wtforms import  HiddenField, RadioField, SelectMultipleField, FloatField, StringField, DecimalField, PasswordField, BooleanField, SubmitField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import NumberRange, DataRequired, Email, EqualTo, Length, Optional, Regexp  # Importa Regexp correctamente
 from .constants import POSICIONES, SUCURSALES, JERARQUIA_POSICIONES  # Importa la lista de posiciones
 from wtforms.widgets import ListWidget, CheckboxInput
@@ -84,6 +84,8 @@ class PasswordRecoveryForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Recuperar Contraseña')
 
+
+
 class ProductForm(FlaskForm):
     nombre = SelectField(
         'Nombre',
@@ -112,6 +114,8 @@ class ProductForm(FlaskForm):
         'Guardar',
         render_kw={"class": "bg-green-500 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow"}
     )
+
+
 
 
 class TamanoForm(FlaskForm):
@@ -186,8 +190,6 @@ class MultiCheckboxField(SelectMultipleField):
     widget = ListWidget(prefix_label=False)
     option_widget = CheckboxInput()
 
-
-
 class SeleccionarExtrasForm(FlaskForm):
     extras = SelectMultipleField('Selecciona los Extras', validators=[Optional()], coerce=int)
     submit = SubmitField('Añadir al Pedido')
@@ -196,11 +198,13 @@ class FinalizarPedidoForm(FlaskForm):
     submit_agregar = SubmitField('Añadir Otro Producto')
     submit_finalizar = SubmitField('Finalizar Pedido')
 
+class SurtirPedidoForm(FlaskForm):
+    pedido_id = HiddenField('Pedido ID', validators=[DataRequired()])
+    submit = SubmitField('Atender')
 
-
-
-
-
+class ActualizarEstadoForm(FlaskForm):
+    estado = HiddenField('Estado', validators=[DataRequired()])
+    submit = SubmitField('Actualizar Estado')
 
 
 class EmpleadoForm(FlaskForm):

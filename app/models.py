@@ -108,7 +108,7 @@ class Pedido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     productos_str = db.Column(db.Text, nullable=True)
     total = db.Column(db.Numeric(10, 2), default=Decimal('0.00'))
-    estado = db.Column(db.String(20), default='en curso')
+    estado = db.Column(db.String(20), default='pendiente')  # Asegúrate de que el valor por defecto sea 'pendiente'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -124,3 +124,5 @@ class Pedido(db.Model):
             if 'extras' not in producto or not isinstance(producto['extras'], list):
                 producto['extras'] = []
         self.productos_str = json.dumps(value)
+
+

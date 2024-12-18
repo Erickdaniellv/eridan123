@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido - Autoservicio de Cafés</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+</head>
+<body class="h-screen w-screen bg-gradient-to-b from-gray-300 to-gray-700 flex items-center justify-center text-white cursor-pointer overflow-hidden"
+      onclick="window.location.href='{{ url_for('listar_productos') }}'">
+
+    <!-- Contenedor Principal -->
+    <div class="flex flex-col items-center text-center space-y-8 animate-fade-in">
+        <!-- Logo del Café -->
+        <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-xl">
+            <img src="{{ url_for('static', filename='SVG/coffee-to-go.svg') }}" alt="Café" class="w-20 h-20">
+        </div>
+
+        <!-- Título Principal -->
+        <h1 class="text-6xl font-extrabold tracking-widest text-yellow-400 drop-shadow-lg">
+            ¡Bienvenido!
+        </h1>
+
+        <!-- Subtítulo -->
+        <p class="text-2xl text-gray-200 font-medium tracking-wide">
+            Autoservicio de Cafés ☕
+        </p>
+
+        <!-- Indicador de Acción -->
+        <p class="text-lg text-gray-300 animate-bounce">
+            Toca la pantalla y ordene
+        </p>
+    </div>
+
+    <!-- Efecto Decorativo (Círculos de Fondo) -->
+    <div class="absolute top-0 left-0 w-80 h-80 bg-yellow-500 opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+    <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400 opacity-20 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+
+    <!-- Animación de entrada personalizada -->
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes blob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 1s ease-out;
+        }
+
+        .animate-blob {
+            animation: blob 4s infinite ease-in-out;
+        }
+    </style>
+</body>
+</html>

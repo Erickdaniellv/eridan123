@@ -1,0 +1,36 @@
+<!-- pedidos/surtir/en_curso.html -->
+{% extends "pedidos/surtir/base.html" %}
+
+{% block title %}Pedidos en Curso{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Pedidos en Curso</h1>
+
+<div class="space-y-6">
+    {% for pedido in pedidos %}
+    <div class="bg-yellow-50 p-6 rounded-lg shadow-md border border-yellow-400">
+        <h2 class="text-lg font-semibold">Pedido ID: {{ pedido.id }}</h2>
+        <p class="text-gray-700">Total: <span class="text-green-600 font-bold">${{ pedido.total }}</span></p>
+        <p class="text-gray-500">Fecha: {{ pedido.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+
+        <ul class="mt-2 list-disc list-inside">
+            {% for producto in pedido.productos %}
+                <li>{{ producto['nombre_producto'] }} - Tamaño: {{ producto['tamano_nombre'] }} | Leche: {{ producto['leche_nombre'] }} | Extras: {{ producto['extras'] | join(', ') }}</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Botón para Concluir Pedido -->
+        <form method="POST" action="{{ url_for('concluir_pedido', pedido_id=pedido.id) }}">
+            {{ form.hidden_tag() }}  <!-- CSRF Token -->
+            <input type="hidden" name="estado" value="concluido">  <!-- Campo Oculto para el Estado -->
+            <button type="submit" 
+                    class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg shadow font-semibold mt-4">
+                Concluir Pedido
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center">No hay pedidos en curso actualmente.</p>
+    {% endfor %}
+</div>
+{% endblock %}

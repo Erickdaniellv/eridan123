@@ -1,0 +1,33 @@
+{% extends "pedidos/menu/base.html" %}
+
+{% block title %}Selecciona un Café{% endblock %}
+
+{% block content %}
+<!-- Contenedor Principal -->
+<div class="w-full h-full px-4 py-6">
+    <h2 class="text-4xl font-bold mb-8 text-center">Seleccione un Café</h2>
+
+    <!-- Grid de Productos -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+        {% for producto in productos %}
+        <a href="{{ url_for('seleccionar_tamano', producto_id=producto.id) }}" 
+           class="block bg-white rounded-lg shadow-lg hover:shadow-2xl transform transition-transform duration-300 hover:scale-105">
+            <div class="p-8 flex flex-col items-center">
+                <!-- Imagen del café -->
+                <img src="{{ url_for('static', filename='SVG/coffee-to-go.svg') }}" 
+                     alt="Café" 
+                     class="w-24 h-24 mb-4">
+
+                <!-- Nombre del producto -->
+                <h3 class="text-2xl font-semibold text-gray-800 mb-2">{{ producto.nombre }}</h3>
+                
+                <!-- Precio -->
+                <p class="text-xl font-bold text-green-600 mt-4">
+                    ${{ '%.2f' | format(producto.precio_base) }}
+                </p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

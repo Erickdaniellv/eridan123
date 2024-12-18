@@ -1,0 +1,57 @@
+<!-- templates/pedidos/finalizar_pedido.html -->
+{% extends "pedidos/menu/base.html" %}
+{% block title %}Finalizar Pedido{% endblock %}
+{% block content %}
+<div class="w-full max-w-4xl mx-auto px-6 py-8 bg-white rounded-lg shadow-lg">
+    <!-- Título -->
+    <h2 class="text-4xl font-bold mb-6 text-center text-gray-800">Finalizar Pedido</h2>
+
+    <!-- Resumen del Pedido -->
+    <div class="mb-8">
+        <h3 class="text-2xl font-semibold mb-4 text-gray-700">Resumen del Pedido</h3>
+        <ul class="space-y-6 divide-y divide-gray-300">
+            {% for item in pedido %}
+            <li class="pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <!-- Información del Producto -->
+                <div class="flex-1">
+                    <p class="text-lg font-semibold text-gray-800">{{ item.nombre_producto }} ({{ item.tamano_nombre }})
+                    </p>
+                    {% if item.leche_nombre %}
+                    <p class="text-sm text-gray-500 mt-1">Leche: {{ item.leche_nombre }}</p>
+                    {% endif %}
+                    {% if item.extras %}
+                    <p class="text-sm text-gray-500 mt-1">Extras: {{ item.extras | join(', ') }}</p>
+                    {% endif %}
+                </div>
+                <!-- Precio -->
+                <div class="text-lg font-bold text-green-600">
+                    ${{ '%.2f' | format(item.precio_total) }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <!-- Total -->
+        <div class="mt-6 border-t pt-4 flex justify-between items-center">
+            <p class="text-2xl font-bold text-gray-800">Total:</p>
+            <p class="text-2xl font-bold text-green-600">${{ '%.2f' | format(total) }}</p>
+        </div>
+    </div>
+
+    <form method="POST" class="space-y-6">
+        {{ form.hidden_tag() }}
+        <!-- Contenedor de Botones -->
+        <div class="flex flex-col sm:flex-row justify-center sm:space-x-6 space-y-4 sm:space-y-0">
+            <!-- Botón Agregar Otro Producto -->
+            {{ form.submit_agregar(
+                class="w-full sm:w-1/2 bg-gray-500 hover:bg-gray-600 active:bg-gray-700 text-white text-lg font-semibold py-4 px-6 rounded-lg shadow-lg cursor-pointer transition-all duration-300"
+            ) }}
+    
+            <!-- Botón Finalizar Pedido -->
+            {{ form.submit_finalizar(
+                class="w-full sm:w-1/2 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white text-lg font-semibold py-4 px-6 rounded-lg shadow-lg cursor-pointer transition-all duration-300"
+            ) }}
+        </div>
+    </form>
+    
+
+    {% endblock %}

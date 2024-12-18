@@ -1,0 +1,73 @@
+{% extends "pedidos/menu/base.html" %}
+
+{% block title %}Seleccionar Extras{% endblock %}
+
+{% block content %}
+<!-- Contenedor Principal -->
+<div class="w-full max-w-6xl mx-auto px-6 py-6">
+    <!-- Título -->
+    <h1 class="text-4xl font-bold mb-10 text-center">Seleccionar Extras para "{{ producto.nombre_producto }}"</h1>
+
+    <!-- Formulario -->
+    <form method="POST" class="flex flex-col justify-center items-center">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- Grid de Extras -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full">
+            {% for extra in extras %}
+            <div class="flex flex-col items-center bg-gray-50 rounded-lg shadow-lg p-6">
+                <!-- Nombre del Extra -->
+                <h2 class="text-2xl font-semibold text-gray-800 mb-2">{{ extra.nombre }}</h2>
+                
+                <!-- Precio -->
+                <p class="text-lg font-medium text-green-600 mb-4">
+                    (+${{ '%.2f' | format(extra.precio_extra) }})
+                </p>
+
+                <!-- Controles de Cantidad -->
+                <div class="flex items-center justify-center w-full">
+                    <button type="button" 
+                            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-l hover:bg-gray-400 transition"
+                            onclick="updateQuantity('quantity-{{ extra.id }}', -1)">
+                        -
+                    </button>
+                    <input 
+                        type="number" 
+                        id="quantity-{{ extra.id }}" 
+                        name="quantity-{{ extra.id }}" 
+                        value="{{ cantidades[extra.id|string] or 0 }}" 
+                        min="0" 
+                        class="w-16 text-center border-t border-b border-gray-300 text-lg font-semibold"
+                        readonly>
+                    <button type="button" 
+                            class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600 transition"
+                            onclick="updateQuantity('quantity-{{ extra.id }}', 1)">
+                        +
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Botón para Enviar -->
+        <div class="mt-10 text-center w-full">
+            <button type="submit" 
+                    class="bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-3 px-8 rounded-lg shadow-lg transition">
+                Añadir al Pedido
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Script para Actualizar la Cantidad -->
+<script>
+    function updateQuantity(inputId, delta) {
+        let input = document.getElementById(inputId);
+        let currentValue = parseInt(input.value) || 0;
+        let newValue = currentValue + delta;
+        if (newValue >= 0) {
+            input.value = newValue;
+        }
+    }
+</script>
+{% endblock %}

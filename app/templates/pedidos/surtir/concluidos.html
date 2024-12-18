@@ -1,0 +1,25 @@
+{% extends "pedidos/surtir/base.html" %}
+
+{% block title %}Pedidos Concluidos{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Pedidos Concluidos</h1>
+
+<div class="space-y-6">
+    {% for pedido in pedidos %}
+    <div class="bg-green-50 p-6 rounded-lg shadow-md border border-green-400">
+        <h2 class="text-lg font-semibold">Pedido ID: {{ pedido.id }}</h2>
+        <p class="text-gray-700">Total: <span class="text-green-600 font-bold">${{ pedido.total }}</span></p>
+        <p class="text-gray-500">Fecha: {{ pedido.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+
+        <ul class="mt-2 list-disc list-inside">
+            {% for producto in pedido.productos %}
+                <li>{{ producto['nombre_producto'] }} - Tamaño: {{ producto['tamano_nombre'] }} | Leche: {{ producto['leche_nombre'] }} | Extras: {{ producto['extras'] | join(', ') }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center">No hay pedidos concluidos.</p>
+    {% endfor %}
+</div>
+{% endblock %}
