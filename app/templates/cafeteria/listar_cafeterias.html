@@ -1,0 +1,76 @@
+<!-- templates/cafeteria/listar_cafeterias.html -->
+{% extends "base1.html" %}
+{% block title %}Mis Cafeterías{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gray-100 p-6">
+  <div class="container mx-auto">
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-4">Mis Cafeterías</h1>
+      
+      <!-- Mensajes flash (éxito, error, etc.) -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+          <div class="mb-4 text-{{ 'red' if category == 'danger' else 'green' }}-600">
+            {{ message }}
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      {% if cafeterias|length == 0 %}
+        <p class="text-gray-600">Aún no tienes cafeterías registradas.</p>
+      {% else %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-200">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="px-4 py-2 text-left text-gray-600 font-semibold">Nombre</th>
+                <th class="px-4 py-2 text-left text-gray-600 font-semibold">Ubicación</th>
+                <th class="px-4 py-2 text-left text-gray-600 font-semibold">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cafe in cafeterias %}
+              <tr class="border-b border-gray-200">
+                <td class="px-4 py-2">
+                  {{ cafe.nombre }}
+                </td>
+                <td class="px-4 py-2">
+                  {{ cafe.ubicacion or "No especificada" }}
+                </td>
+                <td class="px-4 py-2">
+                  <!-- Ejemplos de posibles acciones -->
+                  <a 
+                    href="{{ url_for('editar_cafeteria', caff_id=cafe.id) }}" 
+                    class="text-blue-600 hover:underline mr-2"
+                  >
+                    Editar
+                  </a>
+                  <a 
+                    href="{{ url_for('eliminar_cafeteria', caff_id=cafe.id) }}" 
+                    class="text-red-600 hover:underline"
+                    onclick="return confirm('¿Seguro que deseas eliminar esta cafetería?');"
+                  >
+                    Eliminar
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+      
+      <!-- Botón para crear nueva cafetería -->
+      <a
+        href="{{ url_for('crear_cafeteria') }}"
+        class="mt-4 inline-block bg-green-500 text-white font-semibold py-2 px-4 rounded shadow hover:bg-green-600"
+      >
+        + Crear nueva Cafetería
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

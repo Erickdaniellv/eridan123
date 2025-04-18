@@ -1,8 +1,8 @@
 # C:\Users\Erick Lopez2\Desktop\eccomerce\app\app.py
-from .models import Empleado, Pedido, Opcion, Producto, Usuario, MiTabla, Tamano
+from .models import  Pedido, Opcion, Producto, Usuario, MiTabla, Tamano
 from flask import Response, current_app, make_response, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 from . import db, limiter, mail, csrf, cache
-from .forms import ActualizarEstadoForm, SurtirPedidoForm, SeleccionarTamanoForm, SeleccionarLecheForm, SeleccionarExtrasForm, FinalizarPedidoForm, EmpleadoForm, OpcionForm, TamanoForm, ProductForm, UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
+from .forms import ActualizarEstadoForm, SurtirPedidoForm, SeleccionarTamanoForm, SeleccionarLecheForm, SeleccionarExtrasForm, FinalizarPedidoForm, OpcionForm, TamanoForm, ProductForm, UserProfileForm, LoginForm, RegistrationForm, ChangePasswordForm, PasswordRecoveryForm
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash  # Asegúrate de importar esto
 from flask_mail import Message
@@ -30,7 +30,7 @@ import json
 from decimal import Decimal
 
 
- 
+
 
 def init_routes(app):
 
@@ -86,13 +86,173 @@ def init_routes(app):
 
 
 
+
+
+
+#circulocredito-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+    @app.route('/consulta_credito', methods=['GET', 'POST'])
+    @csrf.exempt
+    def consulta_credito():
+        if request.method == 'POST':
+            # Obtener datos del formulario
+            nombre = request.form.get('nombre')
+            apellido_paterno = request.form.get('apellido_paterno')
+            apellido_materno = request.form.get('apellido_materno')
+            fecha_nacimiento = request.form.get('fecha_nacimiento')
+            rfc = request.form.get('rfc')
+            curp = request.form.get('curp')
+
+            # Validaciones
+            if not nombre or not apellido_paterno or not apellido_materno or not fecha_nacimiento or not rfc or not curp:
+                flash("Todos los campos son obligatorios.", "danger")
+                return render_template('consulta_credito.html')
+
+            # Llamada a la API de Círculo de Crédito
+            api_url = "https://services.circulodecredito.com.mx/v1"
+
+            api_key = "HJFYj3epbcVmomA3bENXS7SBr2R4QAi1"
+
+            payload = {
+                "encabezado": {
+                    "claveOtorgante": "0000080008",
+                    "nombreOtorgante": "MiEmpresa"
+                },
+                "persona": {
+                    "nombre": {
+                        "apellidoPaterno": apellido_paterno,
+                        "apellidoMaterno": apellido_materno,
+                        "nombres": nombre,
+                        "fechaNacimiento": fecha_nacimiento,
+                        "rfc": rfc,
+                        "curp": curp
+                    }
+                }
+            }
+
+            headers = {
+                "Content-Type": "application/json",
+                "x-api-key": api_key
+            }
+
+            try:
+                response = requests.post(api_url, json=payload, headers=headers)
+                response_data = response.json()
+
+                if response.status_code == 200:
+                    session['resultado_credito'] = response_data  # Guardar los resultados en sesión
+                    flash("Consulta realizada con éxito.", "success")
+                    return redirect(url_for('consulta_resultado'))  # Redirigir a la página de resultados
+
+                else:
+                    flash(f"Error en la consulta: {response_data.get('mensaje', 'Error desconocido')}", "danger")
+
+            except Exception as e:
+                flash(f"Error en la conexión con la API: {str(e)}", "danger")
+
+        return render_template('consulta_credito.html')
+
+
+
+    @app.route('/consulta_resultado')
+    @csrf.exempt
+    def consulta_resultado():
+        resultado = session.get('resultado_credito')
+
+        if resultado:
+            return render_template('consulta_resultado.html', datos=resultado)
+
+        flash("No hay datos de consulta disponibles.", "warning")
+        return redirect(url_for('consulta_credito'))
+
+
+
+
+    @app.route('/Webhook', methods=['POST'])
+    @csrf.exempt  # Si estás utilizando CSRF
+    def webhook():
+        # Obtener los datos enviados desde la API
+        data = request.json  # Si la API envía la respuesta en formato JSON
+        if not data:
+            flash("No se recibieron datos del Webhook.", "danger")
+            return jsonify({"status": "error", "message": "No data received"}), 400
+
+        # Procesar los datos recibidos
+        # Aquí es donde puedes validar y guardar la respuesta o realizar alguna acción
+        try:
+            # Ejemplo de procesamiento de datos del Webhook
+            if "status" in data and data["status"] == "success":
+                # Puedes guardar la información en la base de datos
+                flash("Webhook recibido con éxito. Datos procesados.", "success")
+            else:
+                flash("Error en los datos recibidos.", "danger")
+
+            # Retornar una respuesta para confirmar la recepción del Webhook
+            return jsonify({"status": "success", "message": "Webhook received"}), 200
+
+        except Exception as e:
+            flash(f"Error procesando el Webhook: {str(e)}", "danger")
+            return jsonify({"status": "error", "message": str(e)}), 500
+
+    @app.route('/consulta_renapo', methods=['POST'])
+    def consulta_renapo():
+        # Normalmente obtienes estos datos del formulario o de la lógica de tu app.
+        # Aquí, solo para ejemplo, los pondremos fijos.
+        payload = {
+            "infoProvider": "RENAPO",
+            "nombres": "ABIGAIL",
+            "apellidoPaterno": "PEREZ",
+            "apellidoMaterno": "LOPEZ",
+            "fechaNacimiento": "02/08/1990",  # DD/MM/YYYY
+            "curp": "BADD110313HCMLNS09",
+            "sexo": "H",
+            "entidadNacimiento": "JC",
+            "numeroCedula": "XXXXXXXX",
+            "cic": "123456789",
+            "ocr": "123456789",
+            "claveElector": "123456789",
+            "numeroEmision": "123456789",
+            "identificadorCiudadano": "987654321",
+            "fecha": "20230210123045",  # fecha/hora en formato YYYYMMDDHHmmss
+            "requestId": "391d151f-1cac-44e7-a05b-79a1199621d6"
+        }
+
+        # Encabezados
+        headers = {
+            "Content-Type": "application/json",
+            "x-signature": "TU_FIRMA_GENERADA",       # Debes generarla con tu llave privada
+            "x-api-key": "HJFYj3epbcVmomA3bENXS7SBr2R4QAi1",                # La que te proporciona Circulo de Credito
+            "username": "erick_1898@hotmail.com",
+            "password": "Eridan@22"
+        }
+
+        url = "https://services.circulodecredito.com.mx/v1/identity-data/validations"
+
+        try:
+            response = requests.post(url, json=payload, headers=headers)
+            if response.status_code == 200:
+                return jsonify(response.json()), 200
+            else:
+                return jsonify({
+                    "error": True,
+                    "status_code": response.status_code,
+                    "message": response.text
+                }), response.status_code
+
+        except Exception as e:
+            return jsonify({"error": True, "message": str(e)}), 500
+
+
 #CAFFE menu-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     @app.route('/inicio')
     @app.route('/inicio')
     def inicio():
         return render_template('pedidos/menu/inicio.html')
-    
+
     @app.route('/productos')
     def listar_productos():
         productos = Producto.query.all()
@@ -120,7 +280,7 @@ def init_routes(app):
                 flash('Tamaño no válido.', 'danger')
                 logging.error(f"Tamaño no encontrado: ID {tamano_id}")
                 return redirect(url_for('seleccionar_tamano', producto_id=producto_id))
-            
+
             # Calcular precios con Decimal para mayor precisión
             precio_base = Decimal(producto.precio_base)
             precio_extra_tamano = Decimal(tamano.precio_extra)
@@ -175,7 +335,7 @@ def init_routes(app):
             if not leche:
                 flash('Tipo de leche no válido.', 'danger')
                 return redirect(url_for('seleccionar_leche', producto_index=producto_index))
-            
+
             # Actualizar el pedido en la sesión
             pedido[producto_index]['leche_id'] = leche.id
             pedido[producto_index]['leche_nombre'] = leche.nombre
@@ -284,7 +444,7 @@ def init_routes(app):
     def pedido_finalizado(pedido_id):
         pedido = Pedido.query.get_or_404(pedido_id)
         return render_template('pedidos/menu/pedido_finalizado.html', pedido=pedido)
-    
+
 
 #CAFFE Surtir caffe-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -372,7 +532,7 @@ def init_routes(app):
             return redirect(url_for('pedidos_en_curso'))
 
         return render_template('pedidos/surtir/en_curso.html', pedidos=pedidos, form=form)
-    
+
 
 
 
@@ -382,9 +542,9 @@ def init_routes(app):
         if form.validate_on_submit():
             nuevo_estado = form.estado.data
             logging.info(f"Intentando concluir el pedido ID: {pedido_id} a estado: {nuevo_estado}")
-            
+
             pedido = Pedido.query.get_or_404(pedido_id)
-            
+
             if nuevo_estado == 'concluido':
                 pedido.estado = nuevo_estado
                 try:
@@ -399,7 +559,7 @@ def init_routes(app):
             else:
                 flash('Estado inválido proporcionado.', 'warning')
                 logging.warning(f"Estado inválido '{nuevo_estado}' para el pedido {pedido_id}")
-            
+
             return redirect(url_for('pedidos_en_curso'))
         else:
             flash('Formulario inválido o faltan datos.', 'danger')
@@ -421,9 +581,9 @@ def init_routes(app):
         if form.validate_on_submit():
             nuevo_estado = form.estado.data
             logging.info(f"Intentando actualizar el pedido ID: {pedido_id} a estado: {nuevo_estado}")
-            
+
             pedido = Pedido.query.get_or_404(pedido_id)
-            
+
             if nuevo_estado in ['en curso', 'concluido']:
                 pedido.estado = nuevo_estado
                 try:
@@ -438,7 +598,7 @@ def init_routes(app):
             else:
                 flash('Estado inválido proporcionado.', 'warning')
                 logging.warning(f"Estado inválido '{nuevo_estado}' para el pedido {pedido_id}")
-            
+
             return redirect(request.referrer or url_for('surtir_pedidos'))
         else:
             flash('Formulario inválido o faltan datos.', 'danger')
@@ -619,7 +779,7 @@ def init_routes(app):
         }
 
         form = OpcionForm()
-        
+
         # Actualiza dinámicamente las opciones basadas en el tipo seleccionado
         if form.tipo.data in opciones_por_tipo:
             form.nombre.choices = [(opcion, opcion) for opcion in opciones_por_tipo[form.tipo.data]]
@@ -679,63 +839,6 @@ def init_routes(app):
 
 
 
-
-#RH----------------------------------------------------------------------------------------------------------------------
-    @app.route('/empleados', methods=['GET'])
-    def lista_empleados():
-        empleados = Empleado.query.all()
-        return render_template('lista_empleados.html', empleados=empleados)
-
-
-    @app.route('/nuevo_empleado', methods=['GET', 'POST'])
-    def nuevo_empleado():
-        form = EmpleadoForm()
-        
-        # Asignar dinámicamente las opciones de supervisores
-        supervisores = Empleado.query.order_by(Empleado.nombre_persona).all()
-        form.supervisor_id.choices = [('', 'Sin Supervisor')] + [(emp.id, emp.nombre_persona) for emp in supervisores]
-        
-        if form.validate_on_submit():
-            posicion = form.nombre_puesto.data
-            nivel = JERARQUIA_POSICIONES.get(posicion, 99)
-            supervisor_id = form.supervisor_id.data if form.supervisor_id.data else None
-            
-            empleado = Empleado(
-                sucursal=form.sucursal.data,
-                nombre_puesto=posicion,
-                nombre_persona=form.nombre_persona.data,
-                nivel_jerarquico=nivel,
-                supervisor_id=supervisor_id
-            )
-            db.session.add(empleado)
-            db.session.commit()
-            flash('Empleado creado exitosamente.', 'success')
-            return redirect(url_for('nuevo_empleado'))
-        
-        return render_template('nuevo_empleado.html', form=form)
-
-    @app.route('/organigrama', methods=['GET'])
-    def organigrama():
-        sucursal = request.args.get('sucursal', None)
-        if sucursal:
-            empleados = Empleado.query.filter_by(sucursal=sucursal).all()
-        else:
-            empleados = Empleado.query.all()
-        
-        sucursales = SUCURSALES
-        
-        # Convertir empleados a diccionarios
-        empleados_serializados = [emp.to_dict() for emp in empleados]
-        
-        # Debugging: imprimir los empleados serializados en la consola
-        print(empleados_serializados)
-        
-        return render_template(
-            'organigrama.html',
-            empleados=empleados_serializados,  # Pasar los empleados serializados
-            sucursales=sucursales,
-            sucursal_seleccionada=sucursal
-        )
 
 
 

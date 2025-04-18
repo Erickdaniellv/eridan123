@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-
+{% extends "base1.html" %}
 {% block title %}Perfil de Usuario{% endblock %}
 
 {% block contenido %}
@@ -12,46 +11,77 @@
                     <h1 class="text-2xl font-bold text-gray-800">Hola, {{ current_user.nombre_usuario }}</h1>
                     <p class="text-gray-600 mt-2">Aquí puedes gestionar tu perfil y configuración.</p>
                 </div>
-                {% if current_user.es_administrador %}
 
-                <a href="{{ url_for('inicio') }}"
-                    class="flex items-center bg-red-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700">
-                    INICIO CAFFE
-                </a>
-
-
-                
-                <a href="{{ url_for('surtir_pedidos') }}"
-                    class="flex items-center bg-yellow-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700">
-                    Surtir                </a>
-
-
-                <a href="{{ url_for('dashboard') }}"
-                    class="flex items-center bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    Ir al Dashboard
-                </a>
-                {% endif %}
             </div>
         </div>
+        {% if current_user.es_administrador %}
+        <!-- Acciones rápidas para administradores -->
+        <div class="space-x-2 flex mb-4">
+            <a href="{{ url_for('inicio') }}"
+               class="bg-red-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-red-600">
+               INICIO CAFFE
+            </a>
+            <a href="{{ url_for('surtir_pedidos') }}"
+               class="bg-yellow-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-yellow-600">
+               Surtir
+            </a>
+            <a href="{{ url_for('dashboard') }}"
+               class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:bg-blue-600 flex items-center">
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                   <path stroke-linecap="round" stroke-linejoin="round"
+                         d="M13 10V3L4 14h7v7l9-11h-7z" />
+               </svg>
+               Dashboard General
+            </a>
+        </div>
+        
+        <!-- Nueva sección: lista de cafeterías administradas -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                Mis Cafeterías
+            </h2>
+            {% if current_user.cafeterias and current_user.cafeterias|length > 0 %}
+            <ul class="space-y-2">
+                {% for caff in current_user.cafeterias %}
+                <li class="flex items-center justify-between bg-gray-50 rounded p-2 shadow-sm hover:shadow transition-shadow">
+                    <div>
+                        <h3 class="font-semibold text-gray-700">{{ caff.nombre }}</h3>
+                        <p class="text-sm text-gray-500">
+                          Ubicación: {{ caff.ubicacion or "N/A" }}
+                        </p>
+                    </div>
+                    <div class="space-x-2">
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-gray-600">Aún no tienes cafeterías registradas.</p>
+            {% endif %}
+            
+            <a href="{{ url_for('crear_cafeteria') }}"
+               class="inline-block mt-4 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-600">
+               + Crear nueva Cafetería
+            </a>
+        </div>
+        {% endif %}
+        
 
         <!-- Sección de Configuración -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Información Personal -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Información Personal</h2>
-                <ul class="space-y-2">
+                <ul class="space-y-2 text-gray-700">
                     <li><strong>Correo Electrónico:</strong> {{ current_user.email }}</li>
                     <li><strong>Teléfono:</strong> {{ current_user.telefono or "No especificado" }}</li>
                     <li><strong>Dirección:</strong> {{ current_user.direccion or "No especificada" }}</li>
                     <li><strong>RFC:</strong> {{ current_user.rfc or "No especificado" }}</li>
                 </ul>
                 <a href="{{ url_for('actualizar_perfil') }}"
-                    class="mt-4 inline-block bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700">
-                    Editar Perfil
+                   class="mt-4 inline-block bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-green-700">
+                   Editar Perfil
                 </a>
             </div>
 
@@ -59,12 +89,12 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Configuración de Cuenta</h2>
                 <a href="{{ url_for('change_password') }}"
-                    class="block mb-2 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-yellow-700">
-                    Cambiar Contraseña
+                   class="block mb-2 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-yellow-700">
+                   Cambiar Contraseña
                 </a>
                 <a href="{{ url_for('logout') }}"
-                    class="block bg-red-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-red-700">
-                    Cerrar Sesión
+                   class="block bg-red-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-red-700">
+                   Cerrar Sesión
                 </a>
             </div>
         </div>

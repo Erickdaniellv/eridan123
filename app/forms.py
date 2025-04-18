@@ -206,38 +206,3 @@ class ActualizarEstadoForm(FlaskForm):
     estado = HiddenField('Estado', validators=[DataRequired()])
     submit = SubmitField('Actualizar Estado')
 
-
-class EmpleadoForm(FlaskForm):
-    sucursal = SelectField(
-        'Sucursal',
-        choices=[(sucursal, sucursal) for sucursal in SUCURSALES],
-        validators=[DataRequired(message="La sucursal es requerida.")],
-        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
-    )
-    nombre_puesto = SelectField(
-        'Nombre del Puesto',
-        choices=[(puesto, puesto) for puesto in POSICIONES],
-        validators=[
-            DataRequired(message="El nombre del puesto es requerido."),
-            Length(max=100, message="El nombre del puesto no puede exceder 100 caracteres.")
-        ],
-        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
-    )
-    nombre_persona = StringField(
-        'Nombre de la Persona',
-        validators=[
-            DataRequired(message="El nombre de la persona es requerido."),
-            Length(max=100, message="El nombre de la persona no puede exceder 100 caracteres.")
-        ],
-        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
-    )
-    supervisor_id = SelectField(
-        'Supervisor',
-        choices=[],  # Inicialmente vacío, se llenará en la vista
-        validators=[Optional()],
-        render_kw={"class": "w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"}
-    )
-    submit = SubmitField(
-        'Guardar Empleado',
-        render_kw={"class": "w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-blue-500"}
-    )

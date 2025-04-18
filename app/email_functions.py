@@ -1,7 +1,7 @@
 # /home/erickdaniellv/refacajeme/app/email_functions.py
 from flask_mail import Message
 from . import mail
-from .models import Order, OrderItem, Usuario, ShippingAddress
+from .models.models import Order, OrderItem, Usuario, ShippingAddress
 from flask import render_template
 
 def send_confirmation_email(order_id):

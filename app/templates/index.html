@@ -1,230 +1,246 @@
-{% extends "base.html" %}
+{% extends "base1.html" %}
 
 {% block title %}Eridan123{% endblock %}
 
 {% block contenido %}
 
-<!-- Estilos CSS -->
-<style>
-    @media (max-width: 1120px) {
-        .hero_area {
-            height: auto;
-        }
-        .slider_section {
-            padding-bottom: 175px;
-        }
-        .slider_section .carousel_btn-container {
-            top: 130%;
-        }
-    }
+<body class="bg-gray-50 text-gray-800">
 
-    .hero_area {
-        height: 98vh;
-        position: relative;
-    }
 
-    .sub_page .hero_area {
-        height: auto;
-    }
-
-    .hero_area::before {
-        content: "";
-        position: absolute;
-        width: 100%;
-        height: 102%;
-        left: 0;
-        top: 0;
-        background-color: #c4d70f;
-        clip-path: polygon(0 0, 100% 0, 100% 73%, 0% 100%);
-    }
-
-    .sub_page .hero_area::before {
-        clip-path: none;
-    }
-
-    .hero_area.sub_pages {
-        height: auto;
-    }
-</style>
-
-<!-- Sección Hero -->
-<div class="bg-white pb-6 sm:pb-8 lg:pb-12">
-    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
-        <section class="flex flex-col justify-between gap-6 sm:gap-10 md:gap-16 lg:flex-row">
-            <!-- Contenido -->
-            <div class="flex flex-col justify-center sm:text-center lg:py-12 lg:text-left xl:w-5/12 xl:py-24">
-                <p class="mb-4 font-semibold text-indigo-500 md:mb-10 md:text-lg xl:text-2xl" style="font-size: 3em;">SOLUCIONES</p>
-                <h1 class="mb-8 text-4xl font-bold text-black sm:text-5xl md:mb-12 md:text-6xl">TECNOLOGICAS</h1>
-                <p class="mb-8 leading-relaxed text-gray-500 md:mb-12 lg:w-4/5 xl:text-lg">
-                    Encontramos las mejores soluciones para ti, enfocados en las nuevas tendencias de tecnología.
-                    Descubre lo que podemos hacer por ti.
+    <!-- Sección Hero (portada) con gradiente -->
+    <section class="relative">
+        <!-- Fondo con degradado y textura de imagen -->
+        <div class="relative h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style="
+          background-image: url('https://images.unsplash.com/photo-1556911073-52527ac437f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+        ">
+            <div class="absolute inset-0 bg-gradient-to-r from-black to-teal-900 opacity-60"></div>
+            <!-- Contenido del Hero -->
+            <div class="relative z-10 text-center px-4 fade-in-up">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-6">
+                    Impulsa tu Cafetería
+                    <br class="hidden md:block" />
+                    con Tecnología
+                </h1>
+                <p class="text-base md:text-lg text-gray-100 max-w-2xl mx-auto mb-8 leading-relaxed">
+                    Simplifica la gestión de inventarios, pedidos y ventas.
+                    <br class="hidden md:block" />
+                    Ahorra tiempo y maximiza tus ganancias.
                 </p>
-                <div class="flex flex-col gap-2.5 sm:flex-row sm:justify-center lg:justify-start">
-                    <a href="{{ url_for('formulariocliente') }}" class="inline-block rounded-lg bg-indigo-500 px-8 py-3 text-center text-sm font-semibold text-white hover:bg-indigo-600 active:bg-indigo-700 md:text-base">Comienza Ahora!</a>
-                    <a href="#" class="inline-block rounded-lg bg-gray-200 px-8 py-3 text-center text-sm font-semibold text-gray-500 hover:bg-gray-300 active:text-gray-700 md:text-base">Toma un turno</a>
+                <div class="flex justify-center space-x-4">
+                    <a href="#beneficios"
+                        class="bg-teal-500 hover:bg-teal-400 text-white font-semibold py-3 px-6 rounded-full shadow-md transition-all transform hover:scale-105">
+                        Ver Beneficios
+                    </a>
+                    <a href="/register"
+                        class="bg-white hover:bg-gray-100 text-teal-600 font-semibold py-3 px-6 rounded-full shadow-md transition-all transform hover:scale-105">
+                        Comienza Ahora
+                    </a>
                 </div>
             </div>
-            <!-- Imagen -->
-            <div class="h-48 overflow-hidden rounded-lg bg-gray-100 shadow-lg lg:h-auto xl:w-5/12">
-                <img src="https://images.unsplash.com/photo-1618004912476-29818d81ae2e?auto=format&q=75&fit=crop&w=1000" loading="lazy" alt="Tecnología" class="h-full w-full object-cover object-center" />
-            </div>
-        </section>
-    </div>
-</div>
+        </div>
+        <!-- Separador con forma de ola (opcional) -->
+        <div class="w-full overflow-hidden leading-none rotate-180" style="height: 100px; margin-top: -1px;">
+            <svg viewBox="0 0 500 150" preserveAspectRatio="none" class="w-full h-full">
+                <path d="M0.00,49.98 C150.00,150.00 349.51,-50.01 500.00,49.98 L500.00,150.00 L0.00,150.00 Z"
+                    class="fill-white"></path>
+            </svg>
+        </div>
+    </section>
 
-<!-- Sección de Características -->
-<div class="bg-white py-6 sm:py-8 lg:py-12">
-    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
-        <!-- Texto -->
-        <div class="mb-10 md:mb-16">
-            <h2 class="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-6 lg:text-3xl">POR QUÉ ELEGIRNOS</h2>
-            <p class="mx-auto max-w-screen-md text-center text-gray-500 md:text-lg">
-                Estamos comprometidos a la excelencia, trabajamos con inteligencia artificial para maximizar el potencial.
+    <!-- Sección de Beneficios -->
+    <section id="beneficios" class="pt-10 pb-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-14 text-gray-800">
+                ¿Por qué elegir nuestro sistema?
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Beneficio 1 -->
+                <div
+                    class="p-6 border border-gray-100 rounded-lg text-center shadow-lg hover:shadow-xl transition-shadow">
+                    <img src="https://cdn-icons-png.flaticon.com/512/747/747310.png" alt="Icono de tiempo"
+                        class="mx-auto mb-4 w-16 h-16" />
+                    <h3 class="text-xl font-semibold mb-2 text-teal-600">Ahorra Tiempo</h3>
+                    <p class="text-gray-600">
+                        Automatiza procesos administrativos y olvídate de
+                        las complicaciones diarias.
+                    </p>
+                </div>
+                <!-- Beneficio 2 -->
+                <div
+                    class="p-6 border border-gray-100 rounded-lg text-center shadow-lg hover:shadow-xl transition-shadow">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2882/2882499.png" alt="Icono de dinero"
+                        class="mx-auto mb-4 w-16 h-16" />
+                    <h3 class="text-xl font-semibold mb-2 text-teal-600">Más Ventas</h3>
+                    <p class="text-gray-600">
+                        Controla tus pedidos y cuentas para brindar
+                        una experiencia excepcional al cliente.
+                    </p>
+                </div>
+                <!-- Beneficio 3 -->
+                <div
+                    class="p-6 border border-gray-100 rounded-lg text-center shadow-lg hover:shadow-xl transition-shadow">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3534/3534058.png" alt="Icono de datos"
+                        class="mx-auto mb-4 w-16 h-16" />
+                    <h3 class="text-xl font-semibold mb-2 text-teal-600">
+                        Decisiones con Datos
+                    </h3>
+                    <p class="text-gray-600">
+                        Obtén reportes de ventas y estadísticas para
+                        impulsar el crecimiento de tu negocio.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Funcionalidades -->
+    <section id="funcionalidades" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-14 text-gray-800">
+                Principales Funcionalidades
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <!-- Texto -->
+                <div>
+                    <h3 class="text-2xl md:text-3xl font-semibold mb-6 text-teal-600">
+                        Inventarios en Tiempo Real
+                    </h3>
+                    <p class="mb-8 text-gray-700 leading-relaxed">
+                        Controla y registra tus existencias de ingredientes y productos
+                        para no quedarte sin stock en los momentos más importantes.
+                    </p>
+
+                    <h3 class="text-2xl md:text-3xl font-semibold mb-6 text-teal-600">
+                        Gestión de Pedidos
+                    </h3>
+                    <p class="mb-8 text-gray-700 leading-relaxed">
+                        Asigna y monitorea pedidos, agiliza el proceso de
+                        facturación y asegura un servicio rápido y eficiente.
+                    </p>
+
+                    <a href="#contacto"
+                        class="inline-block bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 px-6 rounded-full transition-colors">
+                        Solicita más información
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Testimonios (opcional) -->
+    <section class="bg-white py-20">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-14 text-gray-800">
+                Lo que dicen nuestros clientes
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonio 1 -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <p class="text-gray-600 italic mb-4">
+                        “Desde que uso Cafetería Pro, mi negocio ha sido más rentable y tengo un mejor control de
+                        inventario.”
+                    </p>
+                    <div class="flex items-center">
+                        <img class="w-12 h-12 rounded-full mr-4" src="https://via.placeholder.com/50" alt="User 1" />
+                        <div>
+                            <h4 class="text-gray-800 font-semibold">María González</h4>
+                            <span class="text-sm text-gray-500">Café Delicias</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonio 2 -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <p class="text-gray-600 italic mb-4">
+                        “La gestión de pedidos es súper fácil. ¡Mis baristas están felices y los clientes
+                        también!”
+                    </p>
+                    <div class="flex items-center">
+                        <img class="w-12 h-12 rounded-full mr-4" src="https://via.placeholder.com/50" alt="User 2" />
+                        <div>
+                            <h4 class="text-gray-800 font-semibold">Juan Pérez</h4>
+                            <span class="text-sm text-gray-500">Coffee Time</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonio 3 -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <p class="text-gray-600 italic mb-4">
+                        “Los reportes de ventas me permiten tomar decisiones estratégicas de compra. ¡Recomendado!”
+                    </p>
+                    <div class="flex items-center">
+                        <img class="w-12 h-12 rounded-full mr-4" src="https://via.placeholder.com/50" alt="User 3" />
+                        <div>
+                            <h4 class="text-gray-800 font-semibold">Carlos Ramírez</h4>
+                            <span class="text-sm text-gray-500">La Taza Alegre</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Llamado a la Acción (CTA) con gradiente -->
+    <section class="py-20 bg-gradient-to-r from-teal-500 to-teal-700">
+        <div class="container mx-auto px-4 text-center text-white">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                ¿Listo para Optimizar tu Cafetería?
+            </h2>
+            <p class="mb-8 max-w-xl mx-auto text-lg">
+                Regístrate ahora y comienza a disfrutar de un sistema profesional de
+                gestión que te permitirá ahorrar tiempo y aumentar tus ventas.
             </p>
+            <a href="#contacto"
+                class="bg-white text-teal-600 font-semibold py-3 px-8 rounded-full hover:opacity-90 transition-opacity transform hover:scale-105">
+                Inicia tu prueba gratis
+            </a>
         </div>
-        <!-- Características -->
-        <div class="grid gap-8 sm:grid-cols-2 md:gap-12 xl:grid-cols-3 xl:gap-16">
-            <!-- Característica 1 -->
-            <div class="flex gap-4 md:gap-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-lg md:h-14 md:w-14 md:rounded-xl">
-                    <!-- Icono -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-lg font-semibold md:text-xl">Experiencia</h3>
-                    <p class="text-gray-500">
-                        Nuestro objetivo es ofrecer asistencia experta y eficaz para satisfacer las demandas del mundo digital.
-                    </p>
-                </div>
-            </div>
-            <!-- Característica 2 -->
-            <div class="flex gap-4 md:gap-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-lg md:h-14 md:w-14 md:rounded-xl">
-                    <!-- Icono -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-lg font-semibold md:text-xl">Seguridad</h3>
-                    <p class="text-gray-500">
-                        Mantenemos altos estándares en seguridad y certificaciones para evitar conflictos futuros.
-                    </p>
-                </div>
-            </div>
-            <!-- Característica 3 -->
-            <div class="flex gap-4 md:gap-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-lg md:h-14 md:w-14 md:rounded-xl">
-                    <!-- Icono -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-lg font-semibold md:text-xl">Creatividad</h3>
-                    <p class="text-gray-500">
-                        Nuestro equipo está dedicado a proporcionar resultados excepcionales. Confía en nosotros para llevar tus proyectos al siguiente nivel.
-                    </p>
-                </div>
-            </div>
-            <!-- Característica 4 -->
-            <div class="flex gap-4 md:gap-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-lg md:h-14 md:w-14 md:rounded-xl">
-                    <!-- Icono -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-lg font-semibold md:text-xl">Eficiencia</h3>
-                    <p class="text-gray-500">
-                        Mantenemos altos estándares de calidad, con la garantía de una devolución total.
-                    </p>
-                </div>
-            </div>
-            <!-- Característica 5 -->
-            <div class="flex gap-4 md:gap-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-lg md:h-14 md:w-14 md:rounded-xl">
-                    <!-- Icono -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-lg font-semibold md:text-xl">Soporte</h3>
-                    <p class="text-gray-500">
-                        Generamos asesoría y soporte sin costo extra siempre que esto lo incluya su paquete.
-                    </p>
-                </div>
-            </div>
-            <!-- Característica 6 -->
-            <div class="flex gap-4 md:gap-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-500 text-white shadow-lg md:h-14 md:w-14 md:rounded-xl">
-                    <!-- Icono -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="mb-2 text-lg font-semibold md:text-xl">Usabilidad</h3>
-                    <p class="text-gray-500">
-                        Hacemos del desarrollo un sistema eficiente para uso fácil.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    </section>
 
-<!-- Sección de Servicios -->
-<div class="bg-white py-6 sm:py-8 lg:py-12">
-    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
-        <h2 class="mb-8 text-center text-2xl font-bold text-gray-800 md:mb-12 lg:text-3xl">Servicios</h2>
-        <div class="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-            <!-- Servicio 1 -->
-            <div>
-                <a href="{{ url_for('scraping') }}" class="group relative flex h-96 items-end overflow-hidden rounded-lg bg-gray-100 shadow-lg">
-                    <img src="/static/images/1.jpg" loading="lazy" alt="Analítica de Datos" class="absolute inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110" />
-                    <div class="relative flex w-full flex-col rounded-lg bg-white p-4 text-center">
-                        <span class="text-gray-500">Extracción de datos</span>
-                        <span class="text-lg font-bold text-gray-800 lg:text-xl">Analítica de Datos</span>
+    <!-- Sección de Contacto -->
+    <section id="contacto" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 text-gray-800">
+                Contáctanos
+            </h2>
+            <div class="flex flex-col md:flex-row md:space-x-8">
+                <div class="md:w-1/2 mb-6 md:mb-0 text-gray-700 leading-relaxed">
+                    <p class="mb-4">
+                        ¿Tienes dudas o necesitas más información? Completa el siguiente
+                        formulario y nos pondremos en contacto contigo.
+                    </p>
+                    <p>
+                        También puedes llamarnos al
+                        <strong>+52 (XXX) XXX-XXXX</strong> o enviarnos un correo a
+                        <strong>contacto@cafeteriapro.com</strong>.
+                    </p>
+                </div>
+                <form class="md:w-1/2 space-y-6">
+                    <div>
+                        <label class="block text-gray-600 font-semibold mb-2" for="nombre">Nombre</label>
+                        <input id="nombre" type="text"
+                            class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-teal-500"
+                            placeholder="Tu nombre" />
                     </div>
-                </a>
-            </div>
-            <!-- Servicio 2 -->
-            <div>
-                <a href="{{ url_for('web') }}" class="group relative flex h-96 items-end overflow-hidden rounded-lg bg-gray-100 shadow-lg">
-                    <img src="/static/images/6.jpg" loading="lazy" alt="Sitios Web" class="absolute inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110" />
-                    <div class="relative flex w-full flex-col rounded-lg bg-white p-4 text-center">
-                        <span class="text-gray-500">Sitios web estáticos</span>
-                        <span class="text-lg font-bold text-gray-800 lg:text-xl">Sitios Web</span>
+                    <div>
+                        <label class="block text-gray-600 font-semibold mb-2" for="email">Correo electrónico</label>
+                        <input id="email" type="email"
+                            class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-teal-500"
+                            placeholder="tu@correo.com" />
                     </div>
-                </a>
-            </div>
-            <!-- Servicio 3 -->
-            <div>
-                <a href="{{ url_for('ecommerce') }}" class="group relative flex h-96 items-end overflow-hidden rounded-lg bg-gray-100 shadow-lg">
-                    <img src="/static/images/2.jpg" loading="lazy" alt="Ecommerce" class="absolute inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110" />
-                    <div class="relative flex w-full flex-col rounded-lg bg-white p-4 text-center">
-                        <span class="text-gray-500">Tienda en línea</span>
-                        <span class="text-lg font-bold text-gray-800 lg:text-xl">Ecommerce</span>
+                    <div>
+                        <label class="block text-gray-600 font-semibold mb-2" for="mensaje">Mensaje</label>
+                        <textarea id="mensaje" rows="4"
+                            class="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-teal-500"
+                            placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
                     </div>
-                </a>
-            </div>
-            <!-- Servicio 4 -->
-            <div>
-                <a href="{{ url_for('automatic') }}" class="group relative flex h-96 items-end overflow-hidden rounded-lg bg-gray-100 shadow-lg">
-                    <img src="/static/images/5.jpg" loading="lazy" alt="Automatización" class="absolute inset-0 h-full w-full object-cover object-center transition duration-200 group-hover:scale-110" />
-                    <div class="relative flex w-full flex-col rounded-lg bg-white p-4 text-center">
-                        <span class="text-gray-500">Procesos Automáticos</span>
-                        <span class="text-lg font-bold text-gray-800 lg:text-xl">Automatización</span>
-                    </div>
-                </a>
+                    <button type="submit"
+                        class="bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 px-8 rounded-full transition-colors">
+                        Enviar
+                    </button>
+                </form>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-{% endblock %}
+    <!-- Pie de Página -->
+    {% endblock %}

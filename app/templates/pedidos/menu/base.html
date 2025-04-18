@@ -17,45 +17,67 @@
     </style>
 </head>
 
-<body class="bg-gray-100 text-gray-900">
+<body class="bg-gray-50 text-gray-900">
     <div class="flex min-h-screen">
         <!-- Sidebar para Pantallas Medianas y Grandes -->
-        <aside class="w-64 bg-white shadow-lg p-6 overflow-y-auto border-r border-gray-200 hidden md:block">
-            <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800">Tu Pedido</h2>
-            {% if session.get('pedido') %}
-            <ul class="space-y-4">
-                {% for item in session.get('pedido') %}
-                <li class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4">
-                    <div class="flex-1">
-                        <p class="text-sm font-semibold">{{ item.nombre_producto }} ({{ item.tamano_nombre }})</p>
-                        {% if item.leche_nombre %}
-                        <p class="text-sm text-gray-600">Leche: {{ item.leche_nombre }}</p>
-                        {% endif %}
-                        {% if item.extras %}
-                        <p class="text-sm text-gray-600">Extras: {{ item.extras | join(', ') }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="text-sm text-green-600 mt-2 sm:mt-0">
-                        ${{ '%.2f' | format(item.precio_total) }}
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="mt-4 border-t pt-4 flex justify-between font-semibold text-lg">
-                <span>Total:</span>
-                <span>${{ '%.2f' | format(session.get('total', 0)) }}</span>
+        <aside class="w-64 bg-white shadow-lg p-4 border-r border-gray-200 hidden md:flex flex-col">
+            <!-- Título -->
+            <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 tracking-wide">
+                Tu Pedido
+            </h2>
+        
+            <!-- Lista de Productos -->
+            <div class="overflow-auto mb-4 flex-1">
+                {% if session.get('pedido') %}
+                <ul class="space-y-4">
+                    {% for item in session.get('pedido') %}
+                    <li class="flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-700">{{ item.nombre_producto }}</p>
+                            <p class="text-sm text-gray-500">
+                                Tamaño: <span class="font-medium">{{ item.tamano_nombre }}</span>
+                                {% if item.leche_nombre %}
+                                | Leche: <span class="font-medium">{{ item.leche_nombre }}</span>
+                                {% endif %}
+                                {% if item.extras %}
+                                | Extras: <span class="font-medium">{{ item.extras | join(', ') }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <span class="text-lg text-green-600 font-bold">${{ '%.2f' | format(item.precio_total) }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-center text-gray-500 text-lg">
+                    No has agregado ningún producto al pedido.
+                </p>
+                {% endif %}
             </div>
-            <div class="mt-6">
+        
+            <!-- Total del Pedido -->
+            {% if session.get('pedido') %}
+            <div class="bg-yellow-500 text-white p-6 flex flex-col justify-center items-center rounded-lg shadow-lg">
+                <div class="flex justify-between w-full text-xl font-bold mb-4">
+                    <span>Total:</span>
+                    <span>${{ '%.2f' | format(session.get('total', 0)) }}</span>
+                </div>
                 <a href="{{ url_for('finalizar_pedido') }}"
-                    class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center font-semibold py-2 px-4 rounded-lg shadow">
+                   class="block w-full bg-green-600 hover:bg-green-700 text-white text-center text-lg font-semibold py-3 rounded-lg shadow transition-transform duration-300 hover:scale-105">
                     Finalizar Pedido
                 </a>
             </div>
-            {% else %}
-            <p class="text-gray-500 text-center">No has agregado ningún producto al pedido.</p>
             {% endif %}
         </aside>
-
+                
+        <!-- Botón flotante para dispositivos pequeños -->
+        <div class="fixed bottom-4 right-4 md:hidden">
+            <a href="{{ url_for('finalizar_pedido') }}"
+               class="bg-yellow-500 hover:bg-yellow-600 text-white text-lg font-semibold px-4 py-2 rounded-full shadow-lg flex items-center">
+                🛒 <span class="ml-2">Ver Pedido</span>
+            </a>
+        </div>
+                
         <!-- Contenido Principal -->
         <main class="flex-grow flex items-center justify-center p-4">
                 {% block content %}{% endblock %}

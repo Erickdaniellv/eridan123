@@ -1,0 +1,60 @@
+{% extends "base1.html" %}
+{% block title %}Crear Cafetería{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gray-100 p-6">
+  <div class="container mx-auto">
+    <div class="bg-white rounded-lg shadow p-6 max-w-lg mx-auto">
+      <h1 class="text-2xl font-bold text-gray-800 mb-4">Crear Cafetería</h1>
+      
+      <!-- Mostrar mensajes flash -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="mb-4 text-{{ 'red' if category == 'danger' else 'green' }}-600">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      <!-- Formulario con Flask-WTF -->
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-4">
+          <label for="{{ form.nombre.id }}" class="block text-gray-700 font-semibold mb-2">
+            Nombre de la Cafetería
+          </label>
+          {{ form.nombre(class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-teal-500") }}
+          {% if form.nombre.errors %}
+            <p class="text-red-600 text-sm mt-1">
+              {{ form.nombre.errors[0] }}
+            </p>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ form.ubicacion.id }}" class="block text-gray-700 font-semibold mb-2">
+            Ubicación
+          </label>
+          {{ form.ubicacion(class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-teal-500") }}
+          {% if form.ubicacion.errors %}
+            <p class="text-red-600 text-sm mt-1">
+              {{ form.ubicacion.errors[0] }}
+            </p>
+          {% endif %}
+        </div>
+
+        <!-- Botón para enviar el formulario -->
+        <button
+          type="submit"
+          class="bg-teal-600 hover:bg-teal-500 text-white font-semibold py-2 px-4 rounded transition-colors"
+        >
+          Crear Cafetería
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

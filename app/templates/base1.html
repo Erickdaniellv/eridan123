@@ -1,0 +1,152 @@
+<!-- templates/home.html -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema de Gestión de Cafeterías</title>
+
+  <!-- Tailwind CSS local (ya que lo tienes instalado) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}" />
+
+  <!-- Google Font: Poppins -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" />
+
+  <!-- Estilos personalizados (opcional) -->
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+    }
+
+    /* Animación sencilla con keyframes (ej: fade in) */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 1s ease forwards;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+  <!-- Navbar Responsivo con Alpine.js -->
+  <header x-data="{ isOpen: false }" class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+      <!-- Logo o nombre -->
+      <div class="text-2xl md:text-3xl font-bold text-gray-800">
+        Cafetería Pro
+      </div>
+
+      <!-- Botón Hamburguesa (solo se muestra en móviles) -->
+      <button class="md:hidden text-gray-800 hover:text-teal-600 focus:outline-none" @click="isOpen = !isOpen"
+        aria-label="Abrir Menú">
+        <!-- Icono de hamburguesa -->
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <!-- Menú (desktop) -->
+      <nav class="hidden md:block">
+        <ul class="flex space-x-6 text-lg items-center">
+          <!-- Verificamos si el usuario está autenticado -->
+          {% if current_user.is_authenticated %}
+          <!-- Muestra saludo y logout -->
+          <li>
+            <a href="{{ url_for('profile') }}" class="text-gray-900 hover:text-teal-600 transition-colors">
+              Hola, {{ current_user.nombre_usuario or current_user.email }}
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('logout') }}" class="hover:text-red-600 transition-colors">
+              Cerrar Sesión
+            </a>
+          </li>
+          {% else %}
+          <!-- Si NO está logueado, mostramos enlaces para login/register -->
+          <li>
+            <a href="{{ url_for('login') }}" class="hover:text-teal-600 transition-colors">
+              Iniciar Sesión
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('register') }}" class="hover:text-teal-600 transition-colors">
+              Registrarse
+            </a>
+          </li>
+          {% endif %}
+
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Menú (móvil) -->
+    <div class="md:hidden" x-show="isOpen" @click.away="isOpen = false"
+      x-transition:enter="transition ease-out duration-200"
+      x-transition:enter-start="opacity-0 transform -translate-y-4"
+      x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100 transform translate-y-0"
+      x-transition:leave-end="opacity-0 transform -translate-y-4" style="display: none;">
+      <ul class="flex flex-col space-y-2 bg-white py-4 px-6 text-lg shadow-md">
+        <!-- Verificamos si el usuario está autenticado (versión móvil) -->
+        {% if current_user.is_authenticated %}
+        <li>
+          <a href="{{ url_for('profile') }}" class="block text-gray-700 hover:text-teal-600 transition-colors"
+            @click="isOpen = false">
+            Hola, {{ current_user.nombre_usuario or current_user.email }}
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('logout') }}" class="block hover:text-red-600 transition-colors" @click="isOpen = false">
+            Cerrar Sesión
+          </a>
+        </li>
+        {% else %}
+        <li>
+          <a href="{{ url_for('login') }}" class="block hover:text-teal-600 transition-colors" @click="isOpen = false">
+            Iniciar Sesión
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('register') }}" class="block hover:text-teal-600 transition-colors"
+            @click="isOpen = false">
+            Registrarse
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Enlaces comunes en móvil -->
+      </ul>
+    </div>
+  </header>
+
+  <!-- Main Content (Bloque de contenido Flask) -->
+  {% block contenido %}{% endblock %}
+
+  <!-- Pie de Página -->
+  <footer class="bg-gray-900 text-gray-100 py-6 mt-10">
+    <div class="container mx-auto px-4 text-center">
+      <p class="text-sm md:text-base">
+        &copy; 2025 Cafetería Pro. Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Alpine.js -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</body>
+
+</html>

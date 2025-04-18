@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base1.html" %}
 
 {% block title %}Opciones Administrativas{% endblock %}
 
@@ -59,6 +59,38 @@
                     Gestionar Opciones
                 </a>
             </div>
+
+
+
+
+
+            <div class="bg-white shadow-md rounded-lg p-6 flex flex-col items-center">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Inventario</h2>
+                <p class="text-gray-600 text-center mb-4">
+                    Agrega, edita y gestiona tu Inventario
+                </p>
+                <a href="{{ url_for('dashboard') }}" class="bg-purple-500 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300">
+                    Gestionar Inventario
+                </a>
+            </div>
+            
+
+
+            <div class="bg-white shadow-md rounded-lg p-6 flex flex-col items-center">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Caja</h2>
+                <p class="text-gray-600 text-center mb-4">
+                    Agrega, edita y gestiona tu Inventario
+                </p>
+                <a href="{{ url_for('dashboard') }}" class="bg-purple-500 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300">
+                    Gestionar Caja Chica
+                </a>
+            </div>
+            
+
+
+      
+
+        </div>
         </div>
     </div>
 </div>

@@ -11,34 +11,6 @@ from flask_sqlalchemy import SQLAlchemy
 from decimal import Decimal
 
 
-class Empleado(db.Model):
-    __tablename__ = 'empleados'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    sucursal = db.Column(db.String(50), nullable=False)
-    nombre_puesto = db.Column(db.String(100), nullable=False)
-    nombre_persona = db.Column(db.String(100), nullable=False)
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-    nivel_jerarquico = db.Column(db.Integer, nullable=False)
-    supervisor_id = db.Column(db.Integer, db.ForeignKey('empleados.id'), nullable=True)  # Añadido previamente
-    
-    supervisor = db.relationship('Empleado', remote_side=[id], backref='subordinados')
-    
-    def __repr__(self):
-        return f'<Empleado {self.nombre_persona} - {self.nombre_puesto}>'
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'sucursal': self.sucursal,
-            'nombre_puesto': self.nombre_puesto,
-            'nombre_persona': self.nombre_persona,
-            'fecha_creacion': self.fecha_creacion.strftime('%Y-%m-%d'),
-            'nivel_jerarquico': self.nivel_jerarquico,
-            'supervisor_id': self.supervisor_id
-        }
-
-
 
 class MiTabla(db.Model):
     __tablename__ = 'saldos_cartera'  # Nombre opcional de la tabla
